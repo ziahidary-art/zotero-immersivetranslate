@@ -11,8 +11,8 @@
     "translation"
   ],
   "config": {
-    "addonName": "Zotero BabelDOC plugin",
-    "addonID": "babeldoc@immersive-translate",
+    "addonName": "BabelDOC",
+    "addonID": "babeldoc@immersivetranslate.com",
     "addonRef": "babeldoc",
     "addonInstance": "BabelDOC",
     "prefsPrefix": "extensions.zotero.babeldoc"
