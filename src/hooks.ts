@@ -1,13 +1,26 @@
-import {
-  BasicExampleFactory,
-  HelperExampleFactory,
-  KeyExampleFactory,
-  PromptExampleFactory,
-  UIExampleFactory,
-} from "./modules/examples";
 import { getString, initLocale } from "./utils/locale";
-import { registerPrefsScripts } from "./modules/preferenceScript";
+import {
+  registerPrefs,
+  registerPrefsScripts,
+} from "./modules/preference-window";
+import { registerShortcuts } from "./modules/shortcuts";
 import { createZToolkit } from "./utils/ztoolkit";
+import { registerMenu } from "./modules/menu";
+import { registerNotifier } from "./modules/notify";
+import {
+  registerPrompt,
+  registerAnonymousCommandExample,
+  registerConditionalCommandExample,
+} from "./modules/prompt";
+import {
+  registerItemPaneCustomInfoRow,
+  registerItemPaneSection,
+} from "./modules/item-panel";
+import {
+  registerExtraColumn,
+  registerExtraColumnWithCustomCell,
+} from "./modules/item-tree";
+import { translateItem } from "./modules/translate";
 
 async function onStartup() {
   await Promise.all([
@@ -18,21 +31,21 @@ async function onStartup() {
 
   initLocale();
 
-  BasicExampleFactory.registerPrefs();
+  registerMenu();
 
-  BasicExampleFactory.registerNotifier();
+  registerPrefs();
 
-  KeyExampleFactory.registerShortcuts();
+  registerNotifier(["item", "file"]);
 
-  await UIExampleFactory.registerExtraColumn();
+  registerShortcuts();
 
-  await UIExampleFactory.registerExtraColumnWithCustomCell();
+  await registerExtraColumn();
 
-  UIExampleFactory.registerItemPaneCustomInfoRow();
+  await registerExtraColumnWithCustomCell();
 
-  UIExampleFactory.registerItemPaneSection();
+  registerItemPaneCustomInfoRow();
 
-  UIExampleFactory.registerReaderItemPaneSection();
+  registerItemPaneSection();
 
   await Promise.all(
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
@@ -65,19 +78,11 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
     text: `[30%] ${getString("startup-begin")}`,
   });
 
-  UIExampleFactory.registerStyleSheet(win);
+  registerPrompt();
 
-  UIExampleFactory.registerRightClickMenuItem();
+  registerAnonymousCommandExample(win);
 
-  UIExampleFactory.registerRightClickMenuPopup(win);
-
-  UIExampleFactory.registerWindowMenuWithSeparator();
-
-  PromptExampleFactory.registerNormalCommandExample();
-
-  PromptExampleFactory.registerAnonymousCommandExample(win);
-
-  PromptExampleFactory.registerConditionalCommandExample();
+  registerConditionalCommandExample();
 
   await Zotero.Promise.delay(1000);
 
@@ -86,18 +91,14 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
     text: `[100%] ${getString("startup-finish")}`,
   });
   popupWin.startCloseTimer(5000);
-
-  addon.hooks.onDialogEvents("dialogExample");
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
   ztoolkit.unregisterAll();
-  addon.data.dialog?.window?.close();
 }
 
 function onShutdown(): void {
   ztoolkit.unregisterAll();
-  addon.data.dialog?.window?.close();
   // Remove addon object
   addon.data.alive = false;
   // @ts-ignore - Plugin instance is not typed
@@ -106,7 +107,7 @@ function onShutdown(): void {
 
 /**
  * This function is just an example of dispatcher for Notify events.
- * Any operations should be placed in a function to keep this funcion clear.
+ * Any operations should be placed in a function to keep this function clear.
  */
 async function onNotify(
   event: string,
@@ -114,22 +115,13 @@ async function onNotify(
   ids: Array<string | number>,
   extraData: { [key: string]: any },
 ) {
-  // You can add your code to the corresponding notify type
   ztoolkit.log("notify", event, type, ids, extraData);
-  if (
-    event == "select" &&
-    type == "tab" &&
-    extraData[ids[0]].type == "reader"
-  ) {
-    BasicExampleFactory.exampleNotifierCallback();
-  } else {
-    return;
-  }
+  // TODO: add your code here
 }
 
 /**
  * This function is just an example of dispatcher for Preference UI events.
- * Any operations should be placed in a function to keep this funcion clear.
+ * Any operations should be placed in a function to keep this function clear.
  * @param type event type
  * @param data event data
  */
@@ -143,39 +135,12 @@ async function onPrefsEvent(type: string, data: { [key: string]: any }) {
   }
 }
 
-function onShortcuts(type: string) {
-  switch (type) {
-    case "larger":
-      KeyExampleFactory.exampleShortcutLargerCallback();
-      break;
-    case "smaller":
-      KeyExampleFactory.exampleShortcutSmallerCallback();
-      break;
-    default:
-      break;
-  }
-}
+function onShortcuts(type: string) {}
 
-function onDialogEvents(type: string) {
-  switch (type) {
-    case "dialogExample":
-      HelperExampleFactory.dialogExample();
-      break;
-    case "clipboardExample":
-      HelperExampleFactory.clipboardExample();
-      break;
-    case "filePickerExample":
-      HelperExampleFactory.filePickerExample();
-      break;
-    case "progressWindowExample":
-      HelperExampleFactory.progressWindowExample();
-      break;
-    case "vtableExample":
-      HelperExampleFactory.vtableExample();
-      break;
-    default:
-      break;
-  }
+function onDialogEvents(type: string) {}
+
+function onTranslate() {
+  translateItem();
 }
 
 // Add your hooks here. For element click, etc.
@@ -191,4 +156,5 @@ export default {
   onPrefsEvent,
   onShortcuts,
   onDialogEvents,
+  onTranslate,
 };
