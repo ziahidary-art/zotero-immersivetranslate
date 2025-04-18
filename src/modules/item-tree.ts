@@ -1,6 +1,6 @@
 export async function registerExtraColumn() {
   const field = "test1";
-  await Zotero.ItemTreeManager.registerColumns({
+  await Zotero.ItemTreeManager.registerColumn({
     pluginID: addon.data.config.addonID,
     dataKey: field,
     label: "test column",
@@ -13,7 +13,7 @@ export async function registerExtraColumn() {
 
 export async function registerExtraColumnWithCustomCell() {
   const field = "test2";
-  await Zotero.ItemTreeManager.registerColumns({
+  await Zotero.ItemTreeManager.registerColumn({
     pluginID: addon.data.config.addonID,
     dataKey: field,
     label: "custom column",
