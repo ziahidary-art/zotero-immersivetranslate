@@ -8,3 +8,4 @@ prefs-table-title = Title
 prefs-table-detail = Detail
 tabpanel-lib-tab-label = Lib Tab
 tabpanel-reader-tab-label = Reader Tab
+item-filed-status = BabelDOC 翻译状态

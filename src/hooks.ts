@@ -16,11 +16,9 @@ import {
   registerItemPaneCustomInfoRow,
   registerItemPaneSection,
 } from "./modules/item-panel";
-import {
-  registerExtraColumn,
-  registerExtraColumnWithCustomCell,
-} from "./modules/item-tree";
-import { translateItem } from "./modules/translate";
+import { registerExtraColumn } from "./modules/item-tree";
+import { registerCustomFields } from "./modules/filed";
+import { translatePDF } from "./modules/translate";
 
 async function onStartup() {
   await Promise.all([
@@ -41,7 +39,7 @@ async function onStartup() {
 
   await registerExtraColumn();
 
-  await registerExtraColumnWithCustomCell();
+  registerCustomFields();
 
   registerItemPaneCustomInfoRow();
 
@@ -95,10 +93,12 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
 
 async function onMainWindowUnload(win: Window): Promise<void> {
   ztoolkit.unregisterAll();
+  ztoolkit.Menu.unregisterAll();
 }
 
 function onShutdown(): void {
   ztoolkit.unregisterAll();
+  ztoolkit.Menu.unregisterAll();
   // Remove addon object
   addon.data.alive = false;
   // @ts-ignore - Plugin instance is not typed
@@ -140,7 +140,7 @@ function onShortcuts(type: string) {}
 function onDialogEvents(type: string) {}
 
 function onTranslate() {
-  translateItem();
+  translatePDF();
 }
 
 // Add your hooks here. For element click, etc.

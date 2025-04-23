@@ -21,23 +21,35 @@ export async function request({
   responseType?: "json" | "text" | "blob" | "arraybuffer";
 }) {
   try {
+    const isCustomUrl = url.startsWith("http");
     const queryParams = new URLSearchParams(params);
     const urlWithParams = `${URL}${url}?${queryParams.toString()}`;
-    const _url = url.startsWith("http") ? url : urlWithParams;
+    const _url = isCustomUrl ? url : urlWithParams;
     const res = await Zotero.HTTP.request(method, _url, {
       headers: {
-        Authorization: `Bearer ${getPref("authkey")}`,
+        ...(isCustomUrl
+          ? {}
+          : {
+              Authorization: `Bearer ${getPref("authkey")}`,
+              "Content-Type": "application/json",
+            }),
         ...headers,
       },
-      body,
+      body: isCustomUrl ? body : JSON.stringify(body, null, 2),
       responseType,
     });
-    if (res.response.code === 0) {
-      ztoolkit.log(res.response.data);
-      return res.response.data;
-    } else {
-      handleError(res.response.data);
+    if (responseType === "arraybuffer") {
+      return res.response;
     }
+    if (res.response) {
+      if (res.response.code === 0) {
+        ztoolkit.log(res.response.data);
+        return res.response.data;
+      } else {
+        handleError(new Error(res.response.message));
+      }
+    }
+    return res.response;
   } catch (error: any) {
     ztoolkit.log(error);
     handleError(error);
@@ -51,4 +63,5 @@ export function handleError(error: any) {
       type: "error",
     })
     .show();
+  throw error;
 }

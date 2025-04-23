@@ -1,6 +1,6 @@
 import { request } from "./request";
 
-type UploadUrlResponse = {
+export type UploadUrlResponse = {
   result: {
     objectKey: string;
     preSignedURL: string;
@@ -36,6 +36,14 @@ export function uploadPdf(data: UploadPdfRequest) {
     headers: {
       "Content-Type": "application/pdf",
     },
+  });
+}
+
+export function downloadPdf(url: string) {
+  return request({
+    url,
+    method: "GET",
+    responseType: "arraybuffer",
   });
 }
 
@@ -77,7 +85,7 @@ export function getTranslatePdfCount(
 }
 
 type GetTranslateStatusRequest = {
-  taskId: string;
+  pdfId: string;
 };
 
 type GetTranslateStatusResponse = {
@@ -92,12 +100,12 @@ export function getTranslateStatus(
   data: GetTranslateStatusRequest,
 ): Promise<GetTranslateStatusResponse> {
   return request({
-    url: `/pdf/${data.taskId}/process`,
+    url: `/pdf/${data.pdfId}/process`,
   });
 }
 
 type GetTranslatePdfResultRequest = {
-  taskId: string;
+  pdfId: string;
 };
 
 type GetTranslatePdfResultResponse = {
@@ -111,7 +119,7 @@ export function getTranslatePdfResult(
   data: GetTranslatePdfResultRequest,
 ): Promise<GetTranslatePdfResultResponse> {
   return request({
-    url: `/pdf/${data.taskId}/temp-url`,
+    url: `/pdf/${data.pdfId}/temp-url`,
   });
 }
 
@@ -155,4 +163,5 @@ export default {
   getTranslatePdfResult,
   getRecordList,
   uploadPdf,
+  downloadPdf,
 };
