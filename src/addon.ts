@@ -3,6 +3,15 @@ import { DialogHelper } from "zotero-plugin-toolkit";
 import hooks from "./hooks";
 import { createZToolkit } from "./utils/ztoolkit";
 import api from "./api";
+
+type TranslationTaskData = {
+  parentItemId: number;
+  parentItemTitle: string;
+  attachmentId: number;
+  attachmentFilename: string;
+  attachmentPath: string;
+};
+
 class Addon {
   public data: {
     alive: boolean;
@@ -17,6 +26,8 @@ class Addon {
       window: Window;
     };
     dialog?: DialogHelper;
+    translationGlobalQueue: TranslationTaskData[];
+    isQueueProcessing: boolean;
   };
   // Lifecycle hooks
   public hooks: typeof hooks;
@@ -29,6 +40,8 @@ class Addon {
       config,
       env: __env__,
       ztoolkit: createZToolkit(),
+      translationGlobalQueue: [],
+      isQueueProcessing: false,
     };
     this.hooks = hooks;
     this.api = api;

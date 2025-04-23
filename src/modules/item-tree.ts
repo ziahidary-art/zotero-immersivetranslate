@@ -11,7 +11,13 @@ export async function registerExtraColumn() {
         ztoolkit.ExtraField.getExtraField(item, "imt_BabelDOC_status") || "";
       const stage =
         ztoolkit.ExtraField.getExtraField(item, "imt_BabelDOC_stage") || "";
-      return status + " " + stage;
+      if (status === "translating") {
+        return stage;
+      }
+      if (status === "success") {
+        return "success";
+      }
+      return status;
     },
   });
 
