@@ -18,9 +18,10 @@ import {
 } from "./modules/item-panel";
 import { registerExtraColumn } from "./modules/item-tree";
 import { registerCustomFields } from "./modules/filed";
-import { translatePDF } from "./modules/translate";
+import { translatePDF, startQueueProcessing } from "./modules/translate";
 import {
   loadSavedTranslationData,
+  restoreUnfinishedTasks,
   saveTranslationData,
 } from "./modules/persistence";
 
@@ -56,15 +57,14 @@ async function onStartup() {
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
   );
 
-  ztoolkit.log(
-    "onStartup - translationTaskList",
-    addon.data.translationTaskList,
-  );
+  // 恢复未完成的翻译任务
+  const restoredCount = restoreUnfinishedTasks();
+  if (restoredCount > 0) {
+    ztoolkit.log(`已恢复${restoredCount}个未完成的翻译任务，准备重新处理`);
 
-  ztoolkit.log(
-    "onStartup - translationGlobalQueue",
-    addon.data.translationGlobalQueue,
-  );
+    // 启动处理队列
+    startQueueProcessing();
+  }
 }
 
 async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {

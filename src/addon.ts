@@ -10,6 +10,12 @@ type TranslationTaskData = {
   attachmentId: number;
   attachmentFilename: string;
   attachmentPath: string;
+  pdfId?: string;
+  status?: string;
+  stage?: string;
+  progress?: number;
+  error?: string;
+  resultAttachment?: Zotero.Item;
 };
 
 class Addon {

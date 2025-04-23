@@ -68,7 +68,6 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
 
   // --- Deduplication Step 2: Keep track of IDs added in *this* run ---
   const addedAttachmentIdsThisRun = new Set<number>();
-
   for (const item of selectedItems) {
     let parentItem: Zotero.Item | null = null;
     const attachmentsToProcess: Zotero.Item[] = [];
@@ -136,15 +135,15 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
         continue;
       }
       // Check 3: Parent item status indicates busy/success? (Skip if status is NOT empty AND is queued or translating)
-      // if (
-      //   parentStatus &&
-      //   (parentStatus === "queued" || parentStatus === "translating")
-      // ) {
-      //   ztoolkit.log(
-      //     `Parent item ${parentItem.id} status is '${parentStatus}' (queued or translating), skipping attachment ${attachmentId} (${attachmentFilename}).`,
-      //   );
-      //   continue;
-      // }
+      if (
+        parentStatus &&
+        (parentStatus === "queued" || parentStatus === "translating")
+      ) {
+        ztoolkit.log(
+          `Parent item ${parentItem.id} status is '${parentStatus}' (queued or translating), skipping attachment ${attachmentId} (${attachmentFilename}).`,
+        );
+        continue;
+      }
       // --- End Deduplication Checks ---
 
       // Proceed only if not deduplicated
@@ -178,7 +177,7 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
   return tasks;
 }
 
-async function startQueueProcessing() {
+export async function startQueueProcessing() {
   if (
     addon.data.isQueueProcessing ||
     addon.data.translationGlobalQueue.length === 0
@@ -224,12 +223,48 @@ async function processNextItem() {
   ztoolkit.log(
     `Processing task for attachment: ${taskData.attachmentFilename} (Parent: ${taskData.parentItemTitle}, ID: ${taskData.parentItemId})`,
   );
+
   try {
-    // Pass taskData and the parentItem
-    await handleSingleItemTranslation(taskData, parentItem);
-    ztoolkit.log(
-      `Initiated processing for: ${taskData.attachmentFilename}. Moving to next queue item.`,
-    );
+    // 如果任务已经有pdfId，说明是程序重启后恢复的任务，并且已经创建了翻译任务
+    if (taskData.pdfId) {
+      ztoolkit.log(
+        `恢复已有pdfId(${taskData.pdfId})的任务: ${taskData.attachmentFilename}，直接进入监控阶段`,
+      );
+      // 直接启动监控任务
+      monitorTranslationTask(taskData.pdfId, parentItem, taskData).catch(
+        (error: any) => {
+          ztoolkit.log(
+            `ERROR: Background monitoring task failed unexpectedly for PDF ID ${taskData.pdfId} (${taskData.attachmentFilename}):`,
+            error.message || error,
+          );
+          try {
+            ztoolkit.ExtraField.setExtraField(
+              parentItem,
+              "imt_BabelDOC_status",
+              `failed`,
+            );
+            ztoolkit.ExtraField.setExtraField(
+              parentItem,
+              "imt_BabelDOC_stage",
+              "",
+            );
+            updateTaskInList(taskData.attachmentId, {
+              status: "failed",
+            });
+          } catch (updateError: any) {
+            ztoolkit.log(
+              `ERROR: Failed to update parent item status after monitoring error for ${taskData.pdfId}: ${updateError.message || updateError}`,
+            );
+          }
+        },
+      );
+    } else {
+      // 常规流程 - 从上传开始
+      await handleSingleItemTranslation(taskData, parentItem);
+      ztoolkit.log(
+        `Initiated processing for: ${taskData.attachmentFilename}. Moving to next queue item.`,
+      );
+    }
   } catch (error: any) {
     ztoolkit.log(
       `ERROR: Failed to initiate translation for ${taskData.attachmentFilename}:`,
@@ -424,7 +459,6 @@ async function uploadAttachmentFile(
 
   try {
     const uploadInfo = await addon.api.getPdfUploadUrl();
-    // ztoolkit.log("Upload Info:", uploadInfo); // Optional: Keep for debugging
     if (!attachmentPath)
       throw new Error(
         `File path is missing for attachment ${attachmentFilename}`,
