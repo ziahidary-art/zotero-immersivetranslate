@@ -1,9 +1,17 @@
+import { saveTranslationData } from "./persistence";
+
 type TranslationTaskData = {
   parentItemId: number;
   parentItemTitle: string;
   attachmentId: number;
   attachmentFilename: string;
   attachmentPath: string;
+  pdfId?: string;
+  status?: string;
+  stage?: string;
+  progress?: number;
+  error?: string;
+  resultAttachment?: Zotero.Item;
 };
 
 // clear the queue if needed
@@ -15,6 +23,9 @@ export function clearTranslationQueue() {
   }
   addon.data.translationGlobalQueue = [];
   ztoolkit.log("Pending translation queue cleared.");
+
+  // Save the empty queue state
+  saveTranslationData();
 }
 
 export async function translatePDF() {
@@ -25,6 +36,19 @@ export async function translatePDF() {
   }
   ztoolkit.log(`Adding ${tasksToQueue.length} translation tasks to the queue.`);
   addon.data.translationGlobalQueue.push(...tasksToQueue); // Add new tasks
+
+  // Deep clone the tasks to translationTaskList for tracking
+  if (!addon.data.translationTaskList) {
+    addon.data.translationTaskList = [];
+  }
+  const clonedTasks = tasksToQueue.map((task) =>
+    JSON.parse(JSON.stringify(task)),
+  );
+  addon.data.translationTaskList.push(...clonedTasks);
+
+  // Save the updated queues
+  saveTranslationData();
+
   startQueueProcessing();
 }
 
@@ -52,8 +76,12 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
     if (item.isRegularItem()) {
       parentItem = item;
       const attachmentIds = item.getAttachments(false);
+      // 只处理PDF附件
       for (const id of attachmentIds) {
-        attachmentsToProcess.push(Zotero.Items.get(id));
+        const attachment = Zotero.Items.get(id);
+        if (attachment && attachment.isPDFAttachment()) {
+          attachmentsToProcess.push(attachment);
+        }
       }
     } else if (item.isPDFAttachment()) {
       const parentItemId = item.parentItemID;
@@ -108,15 +136,15 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
         continue;
       }
       // Check 3: Parent item status indicates busy/success? (Skip if status is NOT empty AND is queued or translating)
-      if (
-        parentStatus &&
-        (parentStatus === "queued" || parentStatus === "translating")
-      ) {
-        ztoolkit.log(
-          `Parent item ${parentItem.id} status is '${parentStatus}' (queued or translating), skipping attachment ${attachmentId} (${attachmentFilename}).`,
-        );
-        continue;
-      }
+      // if (
+      //   parentStatus &&
+      //   (parentStatus === "queued" || parentStatus === "translating")
+      // ) {
+      //   ztoolkit.log(
+      //     `Parent item ${parentItem.id} status is '${parentStatus}' (queued or translating), skipping attachment ${attachmentId} (${attachmentFilename}).`,
+      //   );
+      //   continue;
+      // }
       // --- End Deduplication Checks ---
 
       // Proceed only if not deduplicated
@@ -167,11 +195,15 @@ async function processNextItem() {
   if (addon.data.translationGlobalQueue.length === 0) {
     addon.data.isQueueProcessing = false;
     ztoolkit.log("Translation queue empty. Stopping processing loop.");
+    saveTranslationData(); // Save the empty queue state
     return;
   }
 
   // Rename queueItem to taskData for clarity
   const taskData = addon.data.translationGlobalQueue.shift();
+
+  // Save queue state after removing an item
+  saveTranslationData();
 
   if (!taskData) {
     Zotero.Promise.delay(0).then(processNextItem);
@@ -232,6 +264,13 @@ async function handleSingleItemTranslation(
     `uploading`,
   );
 
+  // Update task status in taskList
+  updateTaskInList(taskData.attachmentId, {
+    status: "uploading",
+    stage: "Uploading PDF",
+    progress: 0,
+  });
+
   // --- Upload ---
   // Call the renamed uploadAttachmentFile function, passing path and filename
   const uploadInfo = await uploadAttachmentFile(
@@ -268,6 +307,15 @@ async function handleSingleItemTranslation(
   );
   ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", `queued`);
 
+  // Update taskData with pdfId for the monitoring task
+  taskData.pdfId = pdfId;
+  updateTaskInList(taskData.attachmentId, {
+    status: "translating",
+    stage: "queued",
+    progress: 0,
+    pdfId: pdfId,
+  });
+
   // --- Launch Background Monitoring ---
   // Pass taskData instead of queueItem
   monitorTranslationTask(pdfId, parentItem, taskData).catch((error: any) => {
@@ -282,6 +330,9 @@ async function handleSingleItemTranslation(
         `failed`,
       );
       ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
+      updateTaskInList(taskData.attachmentId, {
+        status: "failed",
+      });
     } catch (updateError: any) {
       ztoolkit.log(
         `ERROR: Failed to update parent item status after monitoring error for ${pdfId}: ${updateError.message || updateError}`,
@@ -306,11 +357,7 @@ async function monitorTranslationTask(
       `Background monitor: Starting polling for ${pdfId} (${taskData.attachmentFilename})`,
     );
     // Pass parentItem to pollTranslationProgress
-    await pollTranslationProgress(
-      pdfId,
-      parentItem,
-      taskData.attachmentFilename,
-    ); // Pass filename for logging/status
+    await pollTranslationProgress(pdfId, parentItem, taskData); // Pass filename for logging/status
 
     ztoolkit.log(
       `Background monitor: Polling successful for ${pdfId}. Starting download.`,
@@ -333,8 +380,38 @@ async function monitorTranslationTask(
         `failed`,
       );
       ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
+      // Update task status in taskList
+      updateTaskInList(taskData.attachmentId, { status: "failed", stage: "" });
     }
   }
+}
+
+// Helper function to update a task in the translationTaskList
+function updateTaskInList(
+  attachmentId: number,
+  updates: {
+    status?: string;
+    stage?: string;
+    pdfId?: string;
+    progress?: number;
+    resultAttachment?: Zotero.Item;
+  },
+) {
+  if (!addon.data.translationTaskList) return;
+
+  const taskIndex = addon.data.translationTaskList.findIndex(
+    (task) => task.attachmentId === attachmentId,
+  );
+
+  if (taskIndex !== -1) {
+    addon.data.translationTaskList[taskIndex] = {
+      ...addon.data.translationTaskList[taskIndex],
+      ...updates,
+    };
+  }
+
+  // Call saveTranslationData after updating the task list
+  saveTranslationData();
 }
 
 // Renamed and refactored to upload a single file
@@ -382,14 +459,17 @@ async function uploadAttachmentFile(
 async function pollTranslationProgress(
   pdfId: string,
   parentItem: Zotero.Item,
-  attachmentFilename: string, // Added for context
+  taskData: TranslationTaskData, // Added for taskList updates
 ): Promise<void> {
   const POLLING_INTERVAL_MS = 3000; // Keep the interval between checks
   // Removed MAX_POLLING_ATTEMPTS and attempts counter
 
   ztoolkit.log(
-    `Polling progress indefinitely for PDF ID: ${pdfId} (${attachmentFilename})`,
+    `Polling progress indefinitely for PDF ID: ${pdfId} (${taskData.attachmentFilename})`,
   );
+
+  const attachmentId = taskData.attachmentId;
+  const attachmentFilename = taskData.attachmentFilename;
 
   // Loop indefinitely until success or error
   while (true) {
@@ -413,6 +493,12 @@ async function pollTranslationProgress(
         `${currentStage}`,
       );
 
+      updateTaskInList(attachmentId, {
+        status: "translating",
+        stage: currentStage,
+        progress: processStatus.overall_progress || 0,
+      });
+
       // --- Check for Success ---
       if (
         processStatus.status === "ok" &&
@@ -421,6 +507,11 @@ async function pollTranslationProgress(
         ztoolkit.log(
           `Translation completed for PDF ID: ${pdfId} (${attachmentFilename})`,
         );
+        updateTaskInList(attachmentId, {
+          status: "completed",
+          stage: "Downloading",
+          progress: 100,
+        });
         return; // Success - exit polling loop
       }
 
@@ -439,6 +530,12 @@ async function pollTranslationProgress(
           `failed`,
         );
         ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
+
+        updateTaskInList(attachmentId, {
+          status: "failed",
+          stage: "",
+          progress: 0,
+        });
         throw new Error(errorMsg); // Failure - exit loop by throwing
       }
 
@@ -463,12 +560,18 @@ async function pollTranslationProgress(
         `failed`,
       );
       ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
+
+      updateTaskInList(attachmentId, {
+        status: "failed",
+        stage: "",
+        progress: 0,
+      });
+
       // Still wait longer after a connection error before the next attempt
       await Zotero.Promise.delay(POLLING_INTERVAL_MS * 2);
       // The loop will continue and retry the getTranslateStatus call
     }
   }
-  // Removed the timeout logic - the loop only exits via return (success) or throw (failure)
 }
 
 // Modified signature to use taskData
@@ -500,6 +603,14 @@ async function downloadTranslateResult({
       "imt_BabelDOC_stage",
       `Downloading result`, // Update stage on parent
     );
+
+    // Update the task in translationTaskList
+    updateTaskInList(taskData.attachmentId, {
+      status: "translating",
+      stage: "Downloading result",
+      progress: 100,
+    });
+
     ztoolkit.log(`File URL for ${taskData.attachmentFilename}:`, fileUrl);
 
     const fileBuffer = await addon.api.downloadPdf(fileUrl);
@@ -547,6 +658,13 @@ async function downloadTranslateResult({
     );
     ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
 
+    // Update final status in taskList
+    updateTaskInList(taskData.attachmentId, {
+      status: "success",
+      progress: 100,
+      resultAttachment: attachment,
+    });
+
     try {
       await IOUtils.remove(tempPath);
       ztoolkit.log(`Removed temporary file: ${tempPath}`);
@@ -567,6 +685,12 @@ async function downloadTranslateResult({
       `failed`,
     );
     ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
+
+    // Update failed status in taskList
+    updateTaskInList(taskData.attachmentId, {
+      status: "failed",
+    });
+
     throw error;
   }
 }

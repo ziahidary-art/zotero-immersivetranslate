@@ -51,8 +51,7 @@ function bindPrefEvents() {
     )
     ?.addEventListener("command", async (e: Event) => {
       ztoolkit.log(e);
-      ztoolkit.log(getPref("authkey"));
-      const response = await getPdfUploadUrl();
-      ztoolkit.log("222", response);
+      setPref("translationTaskList", JSON.stringify([]));
+      setPref("translationGlobalQueue", JSON.stringify([]));
     });
 }

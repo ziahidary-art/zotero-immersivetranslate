@@ -19,6 +19,10 @@ import {
 import { registerExtraColumn } from "./modules/item-tree";
 import { registerCustomFields } from "./modules/filed";
 import { translatePDF } from "./modules/translate";
+import {
+  loadSavedTranslationData,
+  saveTranslationData,
+} from "./modules/persistence";
 
 async function onStartup() {
   await Promise.all([
@@ -45,8 +49,21 @@ async function onStartup() {
 
   registerItemPaneSection();
 
+  // 加载保存的翻译任务和队列数据
+  loadSavedTranslationData();
+
   await Promise.all(
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
+  );
+
+  ztoolkit.log(
+    "onStartup - translationTaskList",
+    addon.data.translationTaskList,
+  );
+
+  ztoolkit.log(
+    "onStartup - translationGlobalQueue",
+    addon.data.translationGlobalQueue,
   );
 }
 
@@ -97,6 +114,9 @@ async function onMainWindowUnload(win: Window): Promise<void> {
 }
 
 function onShutdown(): void {
+  // 关闭前保存翻译数据
+  saveTranslationData();
+
   ztoolkit.unregisterAll();
   ztoolkit.Menu.unregisterAll();
   // Remove addon object

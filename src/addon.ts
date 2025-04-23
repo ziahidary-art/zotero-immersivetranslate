@@ -27,6 +27,7 @@ class Addon {
     };
     dialog?: DialogHelper;
     translationGlobalQueue: TranslationTaskData[];
+    translationTaskList: TranslationTaskData[];
     isQueueProcessing: boolean;
   };
   // Lifecycle hooks
@@ -41,6 +42,7 @@ class Addon {
       env: __env__,
       ztoolkit: createZToolkit(),
       translationGlobalQueue: [],
+      translationTaskList: [],
       isQueueProcessing: false,
     };
     this.hooks = hooks;

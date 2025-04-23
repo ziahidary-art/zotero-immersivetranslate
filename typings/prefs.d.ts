@@ -9,6 +9,8 @@ declare namespace _ZoteroTypes {
     PluginPrefsMap: {
       "enable": boolean;
       "authkey": string;
+      "translationTaskList": string;
+      "translationGlobalQueue": string;
     };
   }
 }
