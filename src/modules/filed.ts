@@ -31,7 +31,7 @@ function registerCustomFields() {
 
   ztoolkit.FieldHooks.register(
     "getField",
-    "imt_BabelDOC_objectKey",
+    "imt_BabelDOC_pdfID",
     (
       field: string,
       unformatted: boolean,
@@ -46,7 +46,7 @@ function registerCustomFields() {
 
   ztoolkit.FieldHooks.register(
     "getField",
-    "imt_BabelDOC_pdfID",
+    "imt_BabelDOC_error",
     (
       field: string,
       unformatted: boolean,

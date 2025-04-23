@@ -55,7 +55,7 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
       for (const id of attachmentIds) {
         attachmentsToProcess.push(Zotero.Items.get(id));
       }
-    } else if (item.isAttachment()) {
+    } else if (item.isPDFAttachment()) {
       const parentItemId = item.parentItemID;
       if (!parentItemId) {
         ztoolkit.log(
@@ -88,69 +88,60 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
       ""; // Default to empty string if null/undefined
 
     for (const attachment of attachmentsToProcess) {
+      const attachmentId = attachment.id;
+      const attachmentFilename =
+        attachment.attachmentFilename || `Attachment ${attachmentId}`; // Fallback filename for logging
+
+      // --- Refined Deduplication Checks ---
+      // Check 1: Already added in this run?
+      if (addedAttachmentIdsThisRun.has(attachmentId)) {
+        ztoolkit.log(
+          `Attachment ${attachmentId} (${attachmentFilename}) was already added in this selection, skipping duplicate.`,
+        );
+        continue;
+      }
+      // Check 2: Already in the live queue?
+      if (existingTaskAttachmentIds.has(attachmentId)) {
+        ztoolkit.log(
+          `Attachment ${attachmentId} (${attachmentFilename}) is already in the global queue, skipping.`,
+        );
+        continue;
+      }
+      // Check 3: Parent item status indicates busy/success? (Skip if status is NOT empty AND is queued or translating)
       if (
-        attachment && // Ensure attachment exists
-        attachment.isAttachment() && // Double check
-        attachment.attachmentContentType === "application/pdf"
+        parentStatus &&
+        (parentStatus === "queued" || parentStatus === "translating")
       ) {
-        const attachmentId = attachment.id;
-        const attachmentFilename =
-          attachment.attachmentFilename || `Attachment ${attachmentId}`; // Fallback filename for logging
+        ztoolkit.log(
+          `Parent item ${parentItem.id} status is '${parentStatus}' (queued or translating), skipping attachment ${attachmentId} (${attachmentFilename}).`,
+        );
+        continue;
+      }
+      // --- End Deduplication Checks ---
 
-        // --- Refined Deduplication Checks ---
-        // Check 1: Already added in this run?
-        if (addedAttachmentIdsThisRun.has(attachmentId)) {
-          ztoolkit.log(
-            `Attachment ${attachmentId} (${attachmentFilename}) was already added in this selection, skipping duplicate.`,
-          );
-          continue;
-        }
-        // Check 2: Already in the live queue?
-        if (existingTaskAttachmentIds.has(attachmentId)) {
-          ztoolkit.log(
-            `Attachment ${attachmentId} (${attachmentFilename}) is already in the global queue, skipping.`,
-          );
-          continue;
-        }
-        // Check 3: Parent item status indicates busy/success? (Skip if status is NOT empty AND is queued or translating)
-        if (
-          parentStatus &&
-          (parentStatus === "queued" || parentStatus === "translating")
-        ) {
-          ztoolkit.log(
-            `Parent item ${parentItem.id} status is '${parentStatus}' (queued or translating), skipping attachment ${attachmentId} (${attachmentFilename}).`,
-          );
-          continue;
-        }
-        // --- End Deduplication Checks ---
-
-        // Proceed only if not deduplicated
-        const exists = await attachment.fileExists();
-        if (exists) {
-          const filePath = await attachment.getFilePathAsync();
-          if (filePath && attachmentFilename) {
-            tasks.push({
-              parentItemId: parentItem.id,
-              parentItemTitle: parentItemTitle,
-              attachmentId: attachmentId,
-              attachmentFilename: attachmentFilename,
-              attachmentPath: filePath,
-            });
-            // Mark as added in this run
-            addedAttachmentIdsThisRun.add(attachmentId);
-          } else {
-            ztoolkit.log(
-              `Could not get path or valid filename for attachment ${attachmentId}, skipping.`,
-            );
-          }
+      // Proceed only if not deduplicated
+      const exists = await attachment.fileExists();
+      if (exists) {
+        const filePath = await attachment.getFilePathAsync();
+        if (filePath && attachmentFilename) {
+          tasks.push({
+            parentItemId: parentItem.id,
+            parentItemTitle: parentItemTitle,
+            attachmentId: attachmentId,
+            attachmentFilename: attachmentFilename,
+            attachmentPath: filePath,
+          });
+          // Mark as added in this run
+          addedAttachmentIdsThisRun.add(attachmentId);
         } else {
           ztoolkit.log(
-            `Attachment file does not exist for ${attachmentId}, skipping.`,
+            `Could not get path or valid filename for attachment ${attachmentId}, skipping.`,
           );
         }
-      } else if (attachment) {
-        // Log if it's not a PDF we can process
-        // ztoolkit.log(`Attachment ${attachment.id} is not a PDF, skipping.`);
+      } else {
+        ztoolkit.log(
+          `Attachment file does not exist for ${attachmentId}, skipping.`,
+        );
       }
     }
   }
@@ -269,7 +260,6 @@ async function handleSingleItemTranslation(
     `Translation task created for ${taskData.attachmentFilename}. PDF ID: ${pdfId}`,
   );
   // Store pdfId maybe prefixed or in a way that relates to the attachment if needed later
-  // ztoolkit.ExtraField.setExtraField(parentItem, `imt_BabelDOC_pdfId_${taskData.attachmentId}`, pdfId);
   ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_pdfId", pdfId); // Overwriting for now
   ztoolkit.ExtraField.setExtraField(
     parentItem,
