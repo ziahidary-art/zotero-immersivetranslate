@@ -126,7 +126,10 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
 
       // Check attachment is already in the translation task list?
       const isInTaskList = addon.data.task.translationTaskList.find(
-        (task) => task.attachmentId === attachmentId,
+        (task) =>
+          task.attachmentId === attachmentId &&
+          task.status !== "success" &&
+          task.status !== "failed",
       );
       if (isInTaskList) {
         ztoolkit.log(
@@ -686,11 +689,16 @@ async function downloadTranslateResult({
       "imt_BabelDOC_status",
       "success",
     );
-    ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
+    ztoolkit.ExtraField.setExtraField(
+      parentItem,
+      "imt_BabelDOC_stage",
+      "success",
+    );
 
     // Update final status in taskList
     updateTaskInList(taskData.attachmentId, {
       status: "success",
+      stage: "success",
       progress: 100,
       resultAttachmentId: attachment.id,
     });
@@ -731,5 +739,4 @@ async function clearStatus(item: Zotero.Item) {
   ztoolkit.ExtraField.setExtraField(item, "imt_BabelDOC_status", "");
   ztoolkit.ExtraField.setExtraField(item, "imt_BabelDOC_stage", "");
   ztoolkit.ExtraField.setExtraField(item, "imt_BabelDOC_pdfId", "");
-  ztoolkit.ExtraField.setExtraField(item, "imt_BabelDOC_objectKey", ""); // Consider prefixing/removing if needed
 }

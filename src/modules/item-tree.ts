@@ -23,17 +23,6 @@ export async function registerExtraColumn() {
 
   await Zotero.ItemTreeManager.registerColumn({
     pluginID: addon.data.config.addonID,
-    dataKey: "objectKey",
-    label: "objectKey",
-    dataProvider: (item: Zotero.Item, dataKey: string) => {
-      const objectKey =
-        ztoolkit.ExtraField.getExtraField(item, "imt_BabelDOC_objectKey") || "";
-      return objectKey;
-    },
-  });
-
-  await Zotero.ItemTreeManager.registerColumn({
-    pluginID: addon.data.config.addonID,
     dataKey: "pdfId",
     label: "pdfId",
     dataProvider: (item: Zotero.Item, dataKey: string) => {

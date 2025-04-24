@@ -1,24 +1,5 @@
 import { getLocaleID } from "../utils/locale";
 
-export function registerItemPaneCustomInfoRow() {
-  Zotero.ItemPaneManager.registerInfoRow({
-    rowID: "babeldoc-info",
-    pluginID: addon.data.config.addonID,
-    editable: true,
-    label: {
-      l10nID: getLocaleID("item-info-status"),
-    },
-    position: "start",
-    onGetData: ({ item }) => {
-      const status =
-        ztoolkit.ExtraField.getExtraField(item, "imt_BabelDOC_status") || "";
-      const stage =
-        ztoolkit.ExtraField.getExtraField(item, "imt_BabelDOC_stage") || "";
-      return status + " " + stage;
-    },
-  });
-}
-
 export function registerItemPaneSection() {
   Zotero.ItemPaneManager.registerSection({
     paneID: "babeldoc-section",

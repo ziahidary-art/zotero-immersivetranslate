@@ -12,10 +12,7 @@ import {
   registerAnonymousCommandExample,
   registerConditionalCommandExample,
 } from "./modules/prompt";
-import {
-  registerItemPaneCustomInfoRow,
-  registerItemPaneSection,
-} from "./modules/item-panel";
+import { registerItemPaneSection } from "./modules/item-panel";
 import { registerExtraColumn } from "./modules/item-tree";
 import { registerCustomFields } from "./modules/filed";
 import { translatePDF, startQueueProcessing } from "./modules/translate";
@@ -48,8 +45,6 @@ async function onStartup() {
   await registerExtraColumn();
 
   registerCustomFields();
-
-  registerItemPaneCustomInfoRow();
 
   registerItemPaneSection();
 

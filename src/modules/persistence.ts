@@ -22,13 +22,16 @@ export function loadSavedTranslationData() {
       }
 
       // 将去重后的数据赋值给全局变量
-      addon.data.translationTaskList = dedupedTasks;
-      ztoolkit.log("已加载保存的翻译任务列表", addon.data.translationTaskList);
+      addon.data.task.translationTaskList = dedupedTasks;
+      ztoolkit.log(
+        "已加载保存的翻译任务列表",
+        addon.data.task.translationTaskList,
+      );
     }
   } catch (error) {
     ztoolkit.log("加载保存的翻译数据时出错", error);
     // 如果出错，使用空数组初始化
-    addon.data.translationTaskList = [];
+    addon.data.task.translationTaskList = [];
   }
 }
 
@@ -69,13 +72,15 @@ function removeDuplicateTasks(tasks: any[]): any[] {
 export function restoreUnfinishedTasks(): number {
   try {
     // 清空当前队列，避免重复
-    addon.data.translationGlobalQueue = [];
+    addon.data.task.translationGlobalQueue = [];
 
     // 找出状态不是success或failed的任务
-    const unfinishedTasks = addon.data.translationTaskList.filter((task) => {
-      const status = task.status || "";
-      return status !== "success" && status !== "failed";
-    });
+    const unfinishedTasks = addon.data.task.translationTaskList.filter(
+      (task: any) => {
+        const status = task.status || "";
+        return status !== "success" && status !== "failed";
+      },
+    );
 
     if (unfinishedTasks.length === 0) {
       ztoolkit.log("没有未完成的翻译任务需要恢复");
@@ -110,14 +115,14 @@ export function restoreUnfinishedTasks(): number {
           continue;
         }
 
-        const isInQueue = addon.data.translationGlobalQueue.find(
-          (t) => t.attachmentId === attachmentId,
+        const isInQueue = addon.data.task.translationGlobalQueue.find(
+          (t: any) => t.attachmentId === attachmentId,
         );
         if (isInQueue) {
           ztoolkit.log("任务已存在于队列中，跳过恢复");
           continue;
         } else {
-          addon.data.translationGlobalQueue.push(task);
+          addon.data.task.translationGlobalQueue.push(task);
           numRestored++;
         }
       } catch (error) {
@@ -142,11 +147,11 @@ export function saveTranslationData() {
   try {
     // 保存翻译任务列表
     if (
-      addon.data.translationTaskList &&
-      addon.data.translationTaskList.length > 0
+      addon.data.task.translationTaskList &&
+      addon.data.task.translationTaskList.length > 0
     ) {
-      const pendingTasks = addon.data.translationTaskList.filter(
-        (task) => task.status !== "success" && task.status !== "failed",
+      const pendingTasks = addon.data.task.translationTaskList.filter(
+        (task: any) => task.status !== "success" && task.status !== "failed",
       );
       setPref("translationTaskList", JSON.stringify(pendingTasks));
     } else {

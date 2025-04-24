@@ -106,21 +106,6 @@ export async function showTaskManager() {
         // Set locales directly to columns
         columns: [
           {
-            dataKey: "index",
-            label: "序号",
-            fixedWidth: false,
-          },
-          {
-            dataKey: "status",
-            label: "状态",
-            fixedWidth: false,
-          },
-          {
-            dataKey: "progress",
-            label: "进度",
-            fixedWidth: false,
-          },
-          {
             dataKey: "parentItemTitle",
             label: "条目",
             fixedWidth: false,
@@ -131,13 +116,39 @@ export async function showTaskManager() {
             fixedWidth: false,
           },
           {
+            dataKey: "pdfId",
+            label: "pdfId",
+            fixedWidth: false,
+          },
+          {
+            dataKey: "status",
+            label: "状态",
+            fixedWidth: false,
+          },
+          {
             dataKey: "stage",
             label: "阶段",
             fixedWidth: false,
           },
+          {
+            dataKey: "progress",
+            label: "进度",
+            fixedWidth: false,
+          },
+          {
+            dataKey: "error",
+            label: "错误",
+            fixedWidth: false,
+          },
+          {
+            dataKey: "resultAttachmentId",
+            label: "结果附件ID",
+            fixedWidth: false,
+          },
         ].map((column) =>
           Object.assign(column, {
-            label: getString(column.label) || column.label,
+            // label: getString(column.label) || column.label,
+            label: column.label,
           }),
         ),
         showHeader: true,
@@ -150,14 +161,17 @@ export async function showTaskManager() {
         const task = addon.data.task.translationTaskList[index];
         return {
           status: task.status || "",
-          progress: task.progress?.toString() || "",
+          progress: `${task.progress || "0"}%` || "0%",
           parentItemTitle: task.parentItemTitle || "",
           attachmentFilename: task.attachmentFilename || "",
           stage: task.stage || "",
+          pdfId: task.pdfId || "",
+          error: task.error || "",
         };
       })
       .setProp("onSelectionChange", (selection) => {
         // updateButtons();
+        return true;
       })
       .setProp("onKeyDown", (event: KeyboardEvent) => {
         if (
