@@ -1,5 +1,5 @@
 import { config } from "../package.json";
-import { DialogHelper } from "zotero-plugin-toolkit";
+import { DialogHelper, VirtualizedTableHelper } from "zotero-plugin-toolkit";
 import hooks from "./hooks";
 import { createZToolkit } from "./utils/ztoolkit";
 import api from "./api";
@@ -32,9 +32,13 @@ class Addon {
       window: Window;
     };
     dialog?: DialogHelper;
-    translationGlobalQueue: TranslationTaskData[];
-    translationTaskList: TranslationTaskData[];
-    isQueueProcessing: boolean;
+    task: {
+      window?: Window;
+      tableHelper?: VirtualizedTableHelper;
+      translationGlobalQueue: TranslationTaskData[];
+      translationTaskList: TranslationTaskData[];
+      isQueueProcessing: boolean;
+    };
   };
   // Lifecycle hooks
   public hooks: typeof hooks;
@@ -47,9 +51,13 @@ class Addon {
       config,
       env: __env__,
       ztoolkit: createZToolkit(),
-      translationGlobalQueue: [],
-      translationTaskList: [],
-      isQueueProcessing: false,
+      task: {
+        window: undefined,
+        tableHelper: undefined,
+        translationGlobalQueue: [],
+        translationTaskList: [],
+        isQueueProcessing: false,
+      },
     };
     this.hooks = hooks;
     this.api = api;

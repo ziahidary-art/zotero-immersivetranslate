@@ -1,4 +1,5 @@
 import { saveTranslationData } from "./persistence";
+import { showTaskManager } from "./task";
 
 type TranslationTaskData = {
   parentItemId: number;
@@ -17,12 +18,12 @@ type TranslationTaskData = {
 const ATTR_TAG = "BabelDOC_translated";
 // clear the queue if needed
 export function clearTranslationQueue() {
-  if (addon.data.isQueueProcessing) {
+  if (addon.data.task.isQueueProcessing) {
     ztoolkit.log(
       "Queue processing is active. Clearing only removes pending items.",
     );
   }
-  addon.data.translationGlobalQueue = [];
+  addon.data.task.translationGlobalQueue = [];
   ztoolkit.log("Pending translation queue cleared.");
 
   // Save the empty queue state
@@ -36,16 +37,16 @@ export async function translatePDF() {
     return;
   }
   ztoolkit.log(`Adding ${tasksToQueue.length} translation tasks to the queue.`);
-  addon.data.translationGlobalQueue.push(...tasksToQueue); // Add new tasks
+  addon.data.task.translationGlobalQueue.push(...tasksToQueue); // Add new tasks
 
   // Deep clone the tasks to translationTaskList for tracking
-  if (!addon.data.translationTaskList) {
-    addon.data.translationTaskList = [];
+  if (!addon.data.task.translationTaskList) {
+    addon.data.task.translationTaskList = [];
   }
   const clonedTasks = tasksToQueue.map((task) =>
     JSON.parse(JSON.stringify(task)),
   );
-  addon.data.translationTaskList.push(...clonedTasks);
+  addon.data.task.translationTaskList.push(...clonedTasks);
 
   // Save the updated queues
   saveTranslationData();
@@ -124,7 +125,7 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
         attachment.attachmentFilename || `Attachment ${attachmentId}`;
 
       // Check attachment is already in the translation task list?
-      const isInTaskList = addon.data.translationTaskList.find(
+      const isInTaskList = addon.data.task.translationTaskList.find(
         (task) => task.attachmentId === attachmentId,
       );
       if (isInTaskList) {
@@ -167,27 +168,28 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
 
 export async function startQueueProcessing() {
   if (
-    addon.data.isQueueProcessing ||
-    addon.data.translationGlobalQueue.length === 0
+    addon.data.task.isQueueProcessing ||
+    addon.data.task.translationGlobalQueue.length === 0
   ) {
     return; // Already running or queue empty
   }
-  addon.data.isQueueProcessing = true;
+  showTaskManager();
+  addon.data.task.isQueueProcessing = true;
   ztoolkit.log("Starting queue processing loop.");
   // Use Zotero.Promise.delay(0).then() to avoid deep recursion and yield
   Zotero.Promise.delay(0).then(processNextItem);
 }
 
 async function processNextItem() {
-  if (addon.data.translationGlobalQueue.length === 0) {
-    addon.data.isQueueProcessing = false;
+  if (addon.data.task.translationGlobalQueue.length === 0) {
+    addon.data.task.isQueueProcessing = false;
     ztoolkit.log("Translation queue empty. Stopping processing loop.");
     saveTranslationData(); // Save the empty queue state
     return;
   }
 
   // Rename queueItem to taskData for clarity
-  const taskData = addon.data.translationGlobalQueue.shift();
+  const taskData = addon.data.task.translationGlobalQueue.shift();
 
   // Save queue state after removing an item
   saveTranslationData();
@@ -423,15 +425,15 @@ function updateTaskInList(
     resultAttachmentId?: number;
   },
 ) {
-  if (!addon.data.translationTaskList) return;
+  if (!addon.data.task.translationTaskList) return;
 
-  const taskIndex = addon.data.translationTaskList.findIndex(
+  const taskIndex = addon.data.task.translationTaskList.findIndex(
     (task) => task.attachmentId === attachmentId,
   );
 
   if (taskIndex !== -1) {
-    addon.data.translationTaskList[taskIndex] = {
-      ...addon.data.translationTaskList[taskIndex],
+    addon.data.task.translationTaskList[taskIndex] = {
+      ...addon.data.task.translationTaskList[taskIndex],
       ...updates,
     };
   }
@@ -671,7 +673,7 @@ async function downloadTranslateResult({
     });
 
     attachment.setTags([ATTR_TAG]);
-    attachment.saveTx();
+    await attachment.saveTx();
 
     ztoolkit.log(
       `Attachment created (ID: ${attachment.id}) for ${taskData.attachmentFilename}`,

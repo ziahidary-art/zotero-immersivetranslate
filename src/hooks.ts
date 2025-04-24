@@ -5,7 +5,7 @@ import {
 } from "./modules/preference-window";
 import { registerShortcuts } from "./modules/shortcuts";
 import { createZToolkit } from "./utils/ztoolkit";
-import { registerMenu } from "./modules/menu";
+import { registerMenu, registerWindowMenu } from "./modules/menu";
 import { registerNotifier } from "./modules/notify";
 import {
   registerPrompt,
@@ -24,6 +24,7 @@ import {
   restoreUnfinishedTasks,
   saveTranslationData,
 } from "./modules/persistence";
+import { showTaskManager } from "./modules/task";
 
 async function onStartup() {
   await Promise.all([
@@ -35,6 +36,8 @@ async function onStartup() {
   initLocale();
 
   registerMenu();
+
+  registerWindowMenu();
 
   registerPrefs();
 
@@ -116,9 +119,7 @@ async function onMainWindowUnload(win: Window): Promise<void> {
 function onShutdown(): void {
   // 关闭前保存翻译数据
   saveTranslationData();
-
   ztoolkit.unregisterAll();
-  ztoolkit.Menu.unregisterAll();
   // Remove addon object
   addon.data.alive = false;
   // @ts-ignore - Plugin instance is not typed
@@ -163,6 +164,10 @@ function onTranslate() {
   translatePDF();
 }
 
+function onViewTranslationTasks() {
+  showTaskManager();
+}
+
 // Add your hooks here. For element click, etc.
 // Keep in mind hooks only do dispatch. Don't add code that does real jobs in hooks.
 // Otherwise the code would be hard to read and maintain.
@@ -177,4 +182,5 @@ export default {
   onShortcuts,
   onDialogEvents,
   onTranslate,
+  onViewTranslationTasks,
 };
