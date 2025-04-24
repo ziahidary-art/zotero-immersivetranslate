@@ -8,7 +8,21 @@ export function loadSavedTranslationData() {
     // 加载翻译任务列表
     const savedTaskList = getPref("translationTaskList");
     if (savedTaskList && typeof savedTaskList === "string") {
-      addon.data.translationTaskList = JSON.parse(savedTaskList);
+      // 解析保存的任务数据
+      const parsedTasks = JSON.parse(savedTaskList);
+
+      // 在加载到全局变量前进行去重
+      const dedupedTasks = removeDuplicateTasks(parsedTasks);
+
+      // 记录清理信息
+      if (parsedTasks.length !== dedupedTasks.length) {
+        ztoolkit.log(
+          `加载时清理了${parsedTasks.length - dedupedTasks.length}条重复记录，保留${dedupedTasks.length}条唯一记录`,
+        );
+      }
+
+      // 将去重后的数据赋值给全局变量
+      addon.data.translationTaskList = dedupedTasks;
       ztoolkit.log("已加载保存的翻译任务列表", addon.data.translationTaskList);
     }
   } catch (error) {
@@ -16,6 +30,35 @@ export function loadSavedTranslationData() {
     // 如果出错，使用空数组初始化
     addon.data.translationTaskList = [];
   }
+}
+
+/**
+ * 从任务列表中移除重复数据
+ * @param tasks 待处理的任务列表
+ * @returns 去重后的任务列表
+ */
+function removeDuplicateTasks(tasks: any[]): any[] {
+  if (!tasks || tasks.length === 0) {
+    return [];
+  }
+
+  // 创建一个映射，记录每个attachmentId对应的最新任务索引
+  const latestTaskIndices = new Map<number, number>();
+
+  // 从后向前遍历，确保保留最新的记录
+  for (let i = tasks.length - 1; i >= 0; i--) {
+    const task = tasks[i];
+    const attachmentId = task.attachmentId;
+
+    if (!latestTaskIndices.has(attachmentId)) {
+      latestTaskIndices.set(attachmentId, i);
+    }
+  }
+
+  // 根据最新任务索引创建新的任务列表
+  return Array.from(latestTaskIndices.values())
+    .sort((a, b) => a - b) // 按原顺序排列
+    .map((index) => tasks[index]);
 }
 
 /**
@@ -39,16 +82,53 @@ export function restoreUnfinishedTasks(): number {
       return 0;
     }
 
-    ztoolkit.log(`找到${unfinishedTasks.length}个未完成的翻译任务，准备恢复`);
+    ztoolkit.log(
+      `找到${unfinishedTasks.length}个未完成的翻译任务，开始检查是否可恢复`,
+    );
 
-    // 将这些任务恢复到队列中
-    addon.data.translationGlobalQueue = unfinishedTasks;
+    // 检查附件是否仍然存在
+    let numRestored = 0;
+    for (const task of unfinishedTasks) {
+      const attachmentId = task.attachmentId;
 
-    // 保存更新后的队列
-    saveTranslationData();
+      try {
+        const attachment = Zotero.Items.get(attachmentId);
 
-    ztoolkit.log(`已将${unfinishedTasks.length}个未完成任务恢复到队列中`);
-    return unfinishedTasks.length;
+        if (!attachment || !attachment.isAttachment()) {
+          ztoolkit.log(
+            `附件ID ${attachmentId} (${task.attachmentFilename}) 已不存在，跳过恢复`,
+          );
+          continue;
+        }
+
+        // 检查父条目是否仍然存在
+        const parentItem = Zotero.Items.get(task.parentItemId);
+        if (!parentItem || !parentItem.isRegularItem()) {
+          ztoolkit.log(
+            `父条目ID ${task.parentItemId} 已不存在，跳过恢复任务 ${attachmentId} (${task.attachmentFilename})`,
+          );
+          continue;
+        }
+
+        const isInQueue = addon.data.translationGlobalQueue.find(
+          (t) => t.attachmentId === attachmentId,
+        );
+        if (isInQueue) {
+          ztoolkit.log("任务已存在于队列中，跳过恢复");
+          continue;
+        } else {
+          addon.data.translationGlobalQueue.push(task);
+          numRestored++;
+        }
+      } catch (error) {
+        ztoolkit.log(
+          `检查附件ID ${attachmentId} 是否存在时出错，跳过恢复`,
+          error,
+        );
+      }
+    }
+    ztoolkit.log(`已恢复${numRestored}个未完成任务`);
+    return numRestored;
   } catch (error) {
     ztoolkit.log("恢复未完成任务时出错", error);
     return 0;
@@ -65,10 +145,10 @@ export function saveTranslationData() {
       addon.data.translationTaskList &&
       addon.data.translationTaskList.length > 0
     ) {
-      setPref(
-        "translationTaskList",
-        JSON.stringify(addon.data.translationTaskList),
+      const pendingTasks = addon.data.translationTaskList.filter(
+        (task) => task.status !== "success" && task.status !== "failed",
       );
+      setPref("translationTaskList", JSON.stringify(pendingTasks));
     } else {
       setPref("translationTaskList", "[]");
     }

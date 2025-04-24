@@ -15,7 +15,7 @@ type TranslationTaskData = {
   stage?: string;
   progress?: number;
   error?: string;
-  resultAttachment?: Zotero.Item;
+  resultAttachmentId?: number;
 };
 
 class Addon {

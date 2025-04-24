@@ -11,9 +11,10 @@ type TranslationTaskData = {
   stage?: string;
   progress?: number;
   error?: string;
-  resultAttachment?: Zotero.Item;
+  resultAttachmentId?: number;
 };
 
+const ATTR_TAG = "BabelDOC_translated";
 // clear the queue if needed
 export function clearTranslationQueue() {
   if (addon.data.isQueueProcessing) {
@@ -57,17 +58,6 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
   const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
   const tasks: TranslationTaskData[] = [];
 
-  // --- Deduplication Step 1: Get IDs of tasks already in the global queue ---
-  const existingTaskAttachmentIds = new Set(
-    addon.data.translationGlobalQueue.map((task) => task.attachmentId),
-  );
-  ztoolkit.log(
-    "Existing attachment IDs in global queue:",
-    existingTaskAttachmentIds,
-  );
-
-  // --- Deduplication Step 2: Keep track of IDs added in *this* run ---
-  const addedAttachmentIdsThisRun = new Set<number>();
   for (const item of selectedItems) {
     let parentItem: Zotero.Item | null = null;
     const attachmentsToProcess: Zotero.Item[] = [];
@@ -78,11 +68,29 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
       // 只处理PDF附件
       for (const id of attachmentIds) {
         const attachment = Zotero.Items.get(id);
+        const hasTranslatedTag = attachment
+          .getTags()
+          .find((tagItem) => tagItem.tag === ATTR_TAG);
+        if (hasTranslatedTag) {
+          ztoolkit.log(
+            `Attachment ${id} is already a translation result, skipping.`,
+          );
+          continue;
+        }
         if (attachment && attachment.isPDFAttachment()) {
           attachmentsToProcess.push(attachment);
         }
       }
     } else if (item.isPDFAttachment()) {
+      const hasTranslatedTag = item
+        .getTags()
+        .find((tagItem) => tagItem.tag === ATTR_TAG);
+      if (hasTranslatedTag) {
+        ztoolkit.log(
+          `Attachment ${item.id} is already a translation result, skipping.`,
+        );
+        continue;
+      }
       const parentItemId = item.parentItemID;
       if (!parentItemId) {
         ztoolkit.log(
@@ -109,38 +117,19 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
     }
 
     const parentItemTitle = parentItem.getField("title") || "Untitled Item";
-    // --- Get parent item status ONCE for all its attachments ---
-    const parentStatus =
-      ztoolkit.ExtraField.getExtraField(parentItem, "imt_BabelDOC_status") ||
-      ""; // Default to empty string if null/undefined
 
     for (const attachment of attachmentsToProcess) {
       const attachmentId = attachment.id;
       const attachmentFilename =
-        attachment.attachmentFilename || `Attachment ${attachmentId}`; // Fallback filename for logging
+        attachment.attachmentFilename || `Attachment ${attachmentId}`;
 
-      // --- Refined Deduplication Checks ---
-      // Check 1: Already added in this run?
-      if (addedAttachmentIdsThisRun.has(attachmentId)) {
+      // Check attachment is already in the translation task list?
+      const isInTaskList = addon.data.translationTaskList.find(
+        (task) => task.attachmentId === attachmentId,
+      );
+      if (isInTaskList) {
         ztoolkit.log(
-          `Attachment ${attachmentId} (${attachmentFilename}) was already added in this selection, skipping duplicate.`,
-        );
-        continue;
-      }
-      // Check 2: Already in the live queue?
-      if (existingTaskAttachmentIds.has(attachmentId)) {
-        ztoolkit.log(
-          `Attachment ${attachmentId} (${attachmentFilename}) is already in the global queue, skipping.`,
-        );
-        continue;
-      }
-      // Check 3: Parent item status indicates busy/success? (Skip if status is NOT empty AND is queued or translating)
-      if (
-        parentStatus &&
-        (parentStatus === "queued" || parentStatus === "translating")
-      ) {
-        ztoolkit.log(
-          `Parent item ${parentItem.id} status is '${parentStatus}' (queued or translating), skipping attachment ${attachmentId} (${attachmentFilename}).`,
+          `Attachment ${attachmentId} (${attachmentFilename}) is already in the translation task list, skipping.`,
         );
         continue;
       }
@@ -157,9 +146,8 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
             attachmentId: attachmentId,
             attachmentFilename: attachmentFilename,
             attachmentPath: filePath,
+            status: "queued",
           });
-          // Mark as added in this run
-          addedAttachmentIdsThisRun.add(attachmentId);
         } else {
           ztoolkit.log(
             `Could not get path or valid filename for attachment ${attachmentId}, skipping.`,
@@ -279,6 +267,9 @@ async function processNextItem() {
       );
       ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
     }
+    updateTaskInList(taskData.attachmentId, {
+      status: "failed",
+    });
   } finally {
     Zotero.Promise.delay(0).then(processNextItem);
   }
@@ -429,7 +420,7 @@ function updateTaskInList(
     stage?: string;
     pdfId?: string;
     progress?: number;
-    resultAttachment?: Zotero.Item;
+    resultAttachmentId?: number;
   },
 ) {
   if (!addon.data.translationTaskList) return;
@@ -661,8 +652,8 @@ async function downloadTranslateResult({
     const originalFilename = taskData.attachmentFilename;
     const baseName = originalFilename.replace(/\.pdf$/i, "");
     const targetLang = "zh_CN"; // TODO: Get from config
-    const suffix = "_translated"; // TODO: Make configurable
-    const fileName = `${baseName}${suffix}_${targetLang}.pdf`;
+    const MODE = "dual";
+    const fileName = `${baseName}_${targetLang}_${MODE}.pdf`;
 
     const tempDir = PathUtils.tempDir || Zotero.getTempDirectory().path;
     const tempPath = PathUtils.join(tempDir, fileName);
@@ -678,6 +669,9 @@ async function downloadTranslateResult({
       title: fileName,
       contentType: "application/pdf",
     });
+
+    attachment.setTags([ATTR_TAG]);
+    attachment.saveTx();
 
     ztoolkit.log(
       `Attachment created (ID: ${attachment.id}) for ${taskData.attachmentFilename}`,
@@ -696,7 +690,7 @@ async function downloadTranslateResult({
     updateTaskInList(taskData.attachmentId, {
       status: "success",
       progress: 100,
-      resultAttachment: attachment,
+      resultAttachmentId: attachment.id,
     });
 
     try {
