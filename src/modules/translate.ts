@@ -1,34 +1,8 @@
 import { saveTranslationData } from "./persistence";
 import { showTaskManager } from "./task";
-
-type TranslationTaskData = {
-  parentItemId: number;
-  parentItemTitle: string;
-  attachmentId: number;
-  attachmentFilename: string;
-  attachmentPath: string;
-  pdfId?: string;
-  status?: string;
-  stage?: string;
-  progress?: number;
-  error?: string;
-  resultAttachmentId?: number;
-};
+import type { TranslationTaskData } from "../types";
 
 const ATTR_TAG = "BabelDOC_translated";
-// clear the queue if needed
-export function clearTranslationQueue() {
-  if (addon.data.task.isQueueProcessing) {
-    ztoolkit.log(
-      "Queue processing is active. Clearing only removes pending items.",
-    );
-  }
-  addon.data.task.translationGlobalQueue = [];
-  ztoolkit.log("Pending translation queue cleared.");
-
-  // Save the empty queue state
-  saveTranslationData();
-}
 
 export async function translatePDF() {
   const tasksToQueue = await getTranslationTasks();
@@ -93,31 +67,23 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
         continue;
       }
       const parentItemId = item.parentItemID;
-      if (!parentItemId) {
-        ztoolkit.log(
-          `Attachment ${item.id} has no valid parent item ID, skipping.`,
-        );
-        continue; // Skip if no valid parent item ID
-      }
-      const potentialParent = Zotero.Items.get(parentItemId);
-      if (potentialParent && potentialParent.isRegularItem()) {
-        parentItem = potentialParent;
-        attachmentsToProcess.push(item); // Only process the selected attachment
+
+      if (parentItemId) {
+        const potentialParent = Zotero.Items.get(parentItemId);
+        if (potentialParent && potentialParent.isRegularItem()) {
+          parentItem = potentialParent;
+          attachmentsToProcess.push(item); // Only process the selected attachment
+        } else {
+          ztoolkit.log(
+            `Attachment ${item.id} has no valid parent item, skipping.`,
+          );
+          continue;
+        }
       } else {
-        ztoolkit.log(
-          `Attachment ${item.id} has no valid parent item, skipping.`,
-        );
+        ztoolkit.log(`顶级附件 =======`);
+        attachmentsToProcess.push(item);
       }
     }
-
-    if (!parentItem) {
-      ztoolkit.log(
-        `Item ${item.id} is not a regular item or a valid attachment, skipping.`,
-      );
-      continue; // Skip if no valid parent item context
-    }
-
-    const parentItemTitle = parentItem.getField("title") || "Untitled Item";
 
     for (const attachment of attachmentsToProcess) {
       const attachmentId = attachment.id;
@@ -148,8 +114,8 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
         const filePath = await attachment.getFilePathAsync();
         if (filePath && attachmentFilename) {
           tasks.push({
-            parentItemId: parentItem.id,
-            parentItemTitle: parentItemTitle,
+            parentItemId: parentItem?.id,
+            parentItemTitle: parentItem?.getField("title"),
             attachmentId: attachmentId,
             attachmentFilename: attachmentFilename,
             attachmentPath: filePath,
@@ -206,15 +172,9 @@ async function processNextItem() {
   }
 
   // Get the parent item using parentItemId from taskData
-  const parentItem = Zotero.Items.get(taskData.parentItemId);
-  if (!parentItem) {
-    // Log error using details from taskData
-    ztoolkit.log(
-      `ERROR: Parent Item ${taskData.parentItemId} for attachment ${taskData.attachmentFilename} not found, skipping task.`,
-    );
-    Zotero.Promise.delay(0).then(processNextItem);
-    return;
-  }
+  const parentItem = taskData.parentItemId
+    ? Zotero.Items.get(taskData.parentItemId)
+    : undefined;
 
   ztoolkit.log(
     `Processing task for attachment: ${taskData.attachmentFilename} (Parent: ${taskData.parentItemTitle}, ID: ${taskData.parentItemId})`,
@@ -227,7 +187,7 @@ async function processNextItem() {
         `恢复已有pdfId(${taskData.pdfId})的任务: ${taskData.attachmentFilename}，直接进入监控阶段`,
       );
       // 直接启动监控任务
-      monitorTranslationTask(taskData.pdfId, parentItem, taskData).catch(
+      monitorTranslationTask(taskData.pdfId, taskData, parentItem).catch(
         (error: any) => {
           ztoolkit.log(
             `ERROR: Background monitoring task failed unexpectedly for PDF ID ${taskData.pdfId} (${taskData.attachmentFilename}):`,
@@ -269,7 +229,7 @@ async function processNextItem() {
 // Accepts TranslationTaskData and the parent Zotero.Item
 async function handleSingleItemTranslation(
   taskData: TranslationTaskData,
-  parentItem: Zotero.Item,
+  parentItem?: Zotero.Item,
 ): Promise<void> {
   // Update task status in taskList
   updateTaskInList(taskData.attachmentId, {
@@ -316,7 +276,7 @@ async function handleSingleItemTranslation(
 
   // --- Launch Background Monitoring ---
   // Pass taskData instead of queueItem
-  monitorTranslationTask(pdfId, parentItem, taskData).catch((error: any) => {
+  monitorTranslationTask(pdfId, taskData, parentItem).catch((error: any) => {
     ztoolkit.log(
       `ERROR: Background monitoring task failed unexpectedly for PDF ID ${pdfId} (${taskData.attachmentFilename}):`,
       error.message || error,
@@ -341,21 +301,21 @@ async function handleSingleItemTranslation(
 // This function runs independently for each translation task
 async function monitorTranslationTask(
   pdfId: string,
-  parentItem: Zotero.Item,
   taskData: TranslationTaskData, // Accepts TranslationTaskData
+  parentItem?: Zotero.Item,
 ): Promise<void> {
   try {
     ztoolkit.log(
       `Background monitor: Starting polling for ${pdfId} (${taskData.attachmentFilename})`,
     );
     // Pass parentItem to pollTranslationProgress
-    await pollTranslationProgress(pdfId, parentItem, taskData); // Pass filename for logging/status
+    await pollTranslationProgress(pdfId, taskData, parentItem); // Pass filename for logging/status
 
     ztoolkit.log(
       `Background monitor: Polling successful for ${pdfId}. Starting download.`,
     );
     // Pass taskData to downloadTranslateResult
-    await downloadTranslateResult({ pdfId, taskData, item: parentItem });
+    await downloadTranslateResult({ pdfId, taskData, parentItem });
 
     ztoolkit.log(
       `Background monitor: Successfully completed task for ${pdfId} (${taskData.attachmentFilename})`,
@@ -445,8 +405,8 @@ async function uploadAttachmentFile(
 // Modified to accept attachmentFilename for context and poll indefinitely
 async function pollTranslationProgress(
   pdfId: string,
-  parentItem: Zotero.Item,
   taskData: TranslationTaskData, // Added for taskList updates
+  parentItem?: Zotero.Item,
 ): Promise<void> {
   const POLLING_INTERVAL_MS = 3000; // Keep the interval between checks
   // Removed MAX_POLLING_ATTEMPTS and attempts counter
@@ -527,11 +487,11 @@ async function pollTranslationProgress(
 async function downloadTranslateResult({
   pdfId,
   taskData, // Use TranslationTaskData
-  item: parentItem, // Rename item to parentItem for clarity
+  parentItem: parentItem, // Rename item to parentItem for clarity
 }: {
   pdfId: string;
   taskData: TranslationTaskData;
-  item: Zotero.Item;
+  parentItem?: Zotero.Item;
 }) {
   try {
     const result = await addon.api.getTranslatePdfResult({ pdfId });
@@ -579,16 +539,16 @@ async function downloadTranslateResult({
     await IOUtils.write(tempPath, new Uint8Array(fileBuffer));
 
     ztoolkit.log(`Importing attachment to item: ${taskData.parentItemId}`);
+
     const attachment = await Zotero.Attachments.importFromFile({
       file: tempPath,
-      parentItemID: taskData.parentItemId, // Use parentItemId from taskData
-      libraryID: parentItem.libraryID,
+      parentItemID: taskData.parentItemId || 0,
+      libraryID: parentItem?.libraryID,
       title: fileName,
       contentType: "application/pdf",
     });
 
     attachment.setTags([ATTR_TAG]);
-    await attachment.saveTx();
 
     ztoolkit.log(
       `Attachment created (ID: ${attachment.id}) for ${taskData.attachmentFilename}`,
@@ -601,6 +561,7 @@ async function downloadTranslateResult({
       progress: 100,
       resultAttachmentId: attachment.id,
     });
+    await attachment.saveTx();
 
     try {
       await IOUtils.remove(tempPath);

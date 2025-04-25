@@ -7,8 +7,8 @@ export type Status =
 export type Stage = "queued" | "processing" | "success" | "failed";
 
 export type TranslationTaskData = {
-  parentItemId: number;
-  parentItemTitle: string;
+  parentItemId?: number;
+  parentItemTitle?: string;
   attachmentId: number;
   attachmentFilename: string;
   attachmentPath: string;

@@ -110,15 +110,6 @@ export function restoreUnfinishedTasks(): number {
           continue;
         }
 
-        // 检查父条目是否仍然存在
-        const parentItem = Zotero.Items.get(task.parentItemId);
-        if (!parentItem || !parentItem.isRegularItem()) {
-          ztoolkit.log(
-            `父条目ID ${task.parentItemId} 已不存在，跳过恢复任务 ${attachmentId} (${task.attachmentFilename})`,
-          );
-          continue;
-        }
-
         const isInQueue = addon.data.task.translationGlobalQueue.find(
           (t: any) => t.attachmentId === attachmentId,
         );
