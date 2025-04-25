@@ -234,18 +234,9 @@ async function processNextItem() {
             error.message || error,
           );
           try {
-            ztoolkit.ExtraField.setExtraField(
-              parentItem,
-              "imt_BabelDOC_status",
-              `failed`,
-            );
-            ztoolkit.ExtraField.setExtraField(
-              parentItem,
-              "imt_BabelDOC_stage",
-              "",
-            );
             updateTaskInList(taskData.attachmentId, {
               status: "failed",
+              error: error.message || error,
             });
           } catch (updateError: any) {
             ztoolkit.log(
@@ -266,15 +257,6 @@ async function processNextItem() {
       `ERROR: Failed to initiate translation for ${taskData.attachmentFilename}:`,
       error.message || error,
     );
-    if (parentItem) {
-      // Update status on the parent item
-      ztoolkit.ExtraField.setExtraField(
-        parentItem,
-        "imt_BabelDOC_status",
-        `failed`,
-      );
-      ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
-    }
     updateTaskInList(taskData.attachmentId, {
       status: "failed",
     });
@@ -289,15 +271,6 @@ async function handleSingleItemTranslation(
   taskData: TranslationTaskData,
   parentItem: Zotero.Item,
 ): Promise<void> {
-  // Clear status specific to this task/parent (maybe prefix fields?)
-  // For now, we still clear general fields on the parent item. Consider if multi-attachment status needs refinement.
-  clearStatus(parentItem);
-  ztoolkit.ExtraField.setExtraField(
-    parentItem,
-    "imt_BabelDOC_status",
-    `uploading`,
-  );
-
   // Update task status in taskList
   updateTaskInList(taskData.attachmentId, {
     status: "uploading",
@@ -332,15 +305,6 @@ async function handleSingleItemTranslation(
   ztoolkit.log(
     `Translation task created for ${taskData.attachmentFilename}. PDF ID: ${pdfId}`,
   );
-  // Store pdfId maybe prefixed or in a way that relates to the attachment if needed later
-  ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_pdfId", pdfId); // Overwriting for now
-  ztoolkit.ExtraField.setExtraField(
-    parentItem,
-    "imt_BabelDOC_status",
-    `translating`,
-  );
-  ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", `queued`);
-
   // Update taskData with pdfId for the monitoring task
   taskData.pdfId = pdfId;
   updateTaskInList(taskData.attachmentId, {
@@ -358,12 +322,6 @@ async function handleSingleItemTranslation(
       error.message || error,
     );
     try {
-      ztoolkit.ExtraField.setExtraField(
-        parentItem,
-        "imt_BabelDOC_status",
-        `failed`,
-      );
-      ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
       updateTaskInList(taskData.attachmentId, {
         status: "failed",
       });
@@ -407,19 +365,11 @@ async function monitorTranslationTask(
       `ERROR: Background monitor failed for PDF ID ${pdfId} (${taskData.attachmentFilename}):`,
       error.message || error,
     );
-    if (parentItem) {
-      ztoolkit.ExtraField.setExtraField(
-        parentItem,
-        "imt_BabelDOC_status",
-        `failed`,
-      );
-      ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
-      // Update task status in taskList
-      updateTaskInList(taskData.attachmentId, {
-        status: "failed",
-        error: error.message || error,
-      });
-    }
+    // Update task status in taskList
+    updateTaskInList(taskData.attachmentId, {
+      status: "failed",
+      error: error.message || error,
+    });
   }
 }
 
@@ -518,17 +468,7 @@ async function pollTranslationProgress(
       );
 
       // Update status and stage on parent item
-      const currentStage = `${processStatus.currentStageName || "queued"} (${processStatus.overall_progress || 0}%)`;
-      ztoolkit.ExtraField.setExtraField(
-        parentItem,
-        "imt_BabelDOC_status",
-        "translating",
-      );
-      ztoolkit.ExtraField.setExtraField(
-        parentItem,
-        "imt_BabelDOC_stage",
-        `${currentStage}`,
-      );
+      const currentStage = `${processStatus.currentStageName || "queued"}`;
 
       updateTaskInList(attachmentId, {
         status: "translating",
@@ -554,26 +494,19 @@ async function pollTranslationProgress(
 
       // --- Check for Failure ---
       if (
-        processStatus.status === "error" ||
-        processStatus.status === "failed"
+        processStatus.status &&
+        processStatus.status !== "" &&
+        processStatus.status !== "ok"
       ) {
         const errorMsg = `Translation failed with status: ${processStatus.status}`;
         ztoolkit.log(
           `ERROR: ${errorMsg} for PDF ID: ${pdfId} (${attachmentFilename}).`,
         );
-        ztoolkit.ExtraField.setExtraField(
-          parentItem,
-          "imt_BabelDOC_status",
-          `failed`,
-        );
-        ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
-
         updateTaskInList(attachmentId, {
           status: "failed",
-          stage: "",
-          progress: 0,
+          error: processStatus.message,
         });
-        throw new Error(errorMsg); // Failure - exit loop by throwing
+        throw new Error(processStatus.message || errorMsg); // Failure - exit loop by throwing
       }
 
       // --- Wait before the next poll ---
@@ -613,13 +546,6 @@ async function downloadTranslateResult({
         `No download URL found for ${taskData.attachmentFilename}.`,
       );
     }
-
-    ztoolkit.ExtraField.setExtraField(
-      parentItem,
-      "imt_BabelDOC_stage",
-      `Downloading result`, // Update stage on parent
-    );
-
     // Update the task in translationTaskList
     updateTaskInList(taskData.attachmentId, {
       status: "translating",
@@ -668,23 +594,10 @@ async function downloadTranslateResult({
       `Attachment created (ID: ${attachment.id}) for ${taskData.attachmentFilename}`,
     );
 
-    // Set final success status on the parent item
-    // Consider how to represent multiple successes if applicable
-    ztoolkit.ExtraField.setExtraField(
-      parentItem,
-      "imt_BabelDOC_status",
-      "success",
-    );
-    ztoolkit.ExtraField.setExtraField(
-      parentItem,
-      "imt_BabelDOC_stage",
-      "success",
-    );
-
     // Update final status in taskList
     updateTaskInList(taskData.attachmentId, {
       status: "success",
-      stage: "success",
+      stage: "completed",
       progress: 100,
       resultAttachmentId: attachment.id,
     });
@@ -703,21 +616,6 @@ async function downloadTranslateResult({
       `ERROR: Failed download/process for PDF ID ${pdfId} (${taskData.attachmentFilename}):`,
       error.message || error,
     );
-    ztoolkit.ExtraField.setExtraField(
-      parentItem,
-      "imt_BabelDOC_status",
-      `failed`,
-    );
-    ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
-
     throw error;
   }
-}
-
-async function clearStatus(item: Zotero.Item) {
-  // Note: This clears general fields. If tracking multiple attachments on one parent,
-  // you might need a more targeted clear based on attachment ID or prefix.
-  ztoolkit.ExtraField.setExtraField(item, "imt_BabelDOC_status", "");
-  ztoolkit.ExtraField.setExtraField(item, "imt_BabelDOC_stage", "");
-  ztoolkit.ExtraField.setExtraField(item, "imt_BabelDOC_pdfId", "");
 }

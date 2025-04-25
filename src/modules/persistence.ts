@@ -155,11 +155,11 @@ export function saveTranslationData() {
       addon.data.task.translationTaskList &&
       addon.data.task.translationTaskList.length > 0
     ) {
-      const pendingTasks = addon.data.task.translationTaskList
+      addon.data.task.translationTaskList
         .filter(
           (task: any) => task.status !== "success" && task.status !== "failed",
         )
-        .map((task: TranslationTaskData) => setTask(task));
+        .forEach((task: TranslationTaskData) => setTask(task));
     }
   } catch (error) {
     ztoolkit.log("保存翻译数据时出错", error);
