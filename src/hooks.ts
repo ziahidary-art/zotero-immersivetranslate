@@ -22,6 +22,7 @@ import {
   saveTranslationData,
 } from "./modules/persistence";
 import { showTaskManager } from "./modules/task";
+import { initTasks } from "./modules/task/controller";
 
 async function onStartup() {
   await Promise.all([
@@ -42,18 +43,20 @@ async function onStartup() {
 
   registerShortcuts();
 
+  initTasks();
+
   await registerExtraColumn();
 
   registerCustomFields();
 
   registerItemPaneSection();
 
-  // 加载保存的翻译任务和队列数据
-  loadSavedTranslationData();
-
   await Promise.all(
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
   );
+
+  // 加载保存的翻译任务和队列数据
+  loadSavedTranslationData();
 
   // 恢复未完成的翻译任务
   const restoredCount = restoreUnfinishedTasks();

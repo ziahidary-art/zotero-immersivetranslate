@@ -1,22 +1,14 @@
 import { config } from "../package.json";
-import { DialogHelper, VirtualizedTableHelper } from "zotero-plugin-toolkit";
+import {
+  DialogHelper,
+  VirtualizedTableHelper,
+  LargePrefHelper,
+} from "zotero-plugin-toolkit";
+import {} from "zotero-plugin-toolkit";
 import hooks from "./hooks";
 import { createZToolkit } from "./utils/ztoolkit";
 import api from "./api";
-
-type TranslationTaskData = {
-  parentItemId: number;
-  parentItemTitle: string;
-  attachmentId: number;
-  attachmentFilename: string;
-  attachmentPath: string;
-  pdfId?: string;
-  status?: string;
-  stage?: string;
-  progress?: number;
-  error?: string;
-  resultAttachmentId?: number;
-};
+import type { TranslationTaskData } from "./types";
 
 class Addon {
   public data: {
@@ -33,6 +25,7 @@ class Addon {
     };
     dialog?: DialogHelper;
     task: {
+      data?: LargePrefHelper;
       window?: Window;
       tableHelper?: VirtualizedTableHelper;
       translationGlobalQueue: TranslationTaskData[];

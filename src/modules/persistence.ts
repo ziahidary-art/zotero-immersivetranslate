@@ -1,4 +1,10 @@
-import { getPref, setPref } from "../utils/prefs";
+import {
+  setTask,
+  clearTasks,
+  getTaskKeys,
+  getTaskText,
+} from "./task/controller";
+import type { TranslationTaskData } from "../types";
 
 /**
  * 加载已保存的翻译任务数据
@@ -6,18 +12,16 @@ import { getPref, setPref } from "../utils/prefs";
 export function loadSavedTranslationData() {
   try {
     // 加载翻译任务列表
-    const savedTaskList = getPref("translationTaskList");
-    if (savedTaskList && typeof savedTaskList === "string") {
-      // 解析保存的任务数据
-      const parsedTasks = JSON.parse(savedTaskList);
-
+    const taskKeys = getTaskKeys();
+    const savedTaskList = taskKeys.map((key) => getTaskText(key));
+    if (savedTaskList && savedTaskList.length > 0) {
       // 在加载到全局变量前进行去重
-      const dedupedTasks = removeDuplicateTasks(parsedTasks);
+      const dedupedTasks = removeDuplicateTasks(savedTaskList);
 
       // 记录清理信息
-      if (parsedTasks.length !== dedupedTasks.length) {
+      if (savedTaskList.length !== dedupedTasks.length) {
         ztoolkit.log(
-          `加载时清理了${parsedTasks.length - dedupedTasks.length}条重复记录，保留${dedupedTasks.length}条唯一记录`,
+          `加载时清理了${savedTaskList.length - dedupedTasks.length}条重复记录，保留${dedupedTasks.length}条唯一记录`,
         );
       }
 
@@ -144,18 +148,18 @@ export function restoreUnfinishedTasks(): number {
  * 保存当前的翻译任务数据
  */
 export function saveTranslationData() {
+  clearTasks();
   try {
     // 保存翻译任务列表
     if (
       addon.data.task.translationTaskList &&
       addon.data.task.translationTaskList.length > 0
     ) {
-      const pendingTasks = addon.data.task.translationTaskList.filter(
-        (task: any) => task.status !== "success" && task.status !== "failed",
-      );
-      setPref("translationTaskList", JSON.stringify(pendingTasks));
-    } else {
-      setPref("translationTaskList", "[]");
+      const pendingTasks = addon.data.task.translationTaskList
+        .filter(
+          (task: any) => task.status !== "success" && task.status !== "failed",
+        )
+        .map((task: TranslationTaskData) => setTask(task));
     }
   } catch (error) {
     ztoolkit.log("保存翻译数据时出错", error);
