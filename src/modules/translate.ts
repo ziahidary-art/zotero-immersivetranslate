@@ -454,7 +454,7 @@ async function pollTranslationProgress(
           `Translation completed for PDF ID: ${pdfId} (${attachmentFilename})`,
         );
         updateTaskInList(attachmentId, {
-          status: "completed",
+          status: "translating",
           stage: "Downloading",
           progress: 100,
         });
