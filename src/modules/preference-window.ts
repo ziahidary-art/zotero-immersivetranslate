@@ -2,6 +2,7 @@ import { config } from "../../package.json";
 import { getPdfUploadUrl } from "../api";
 import { getString } from "../utils/locale";
 import { getPref, setPref } from "../utils/prefs";
+import { getLanguages, nativeLangMap } from "./language";
 
 export function registerPrefs() {
   Zotero.PreferencePanes.register({
@@ -22,7 +23,151 @@ export async function registerPrefsScripts(_window: Window) {
   } else {
     addon.data.prefs.window = _window;
   }
+  buildPrefsPane();
   bindPrefEvents();
+}
+
+function buildPrefsPane() {
+  const doc = addon.data.prefs?.window?.document;
+  if (!doc) {
+    return;
+  }
+  ztoolkit.UI.replaceElement(
+    {
+      tag: "menulist",
+      id: `${config.addonRef}-target-language`,
+      attributes: {
+        value: getPref("targetLanguage") as string,
+        native: "true",
+      },
+      styles: {
+        maxWidth: "250px",
+      },
+      children: [
+        {
+          tag: "menupopup",
+          children: getLanguages().map((lang) => {
+            const nativeLang = nativeLangMap[lang];
+            return {
+              tag: "menuitem",
+              attributes: {
+                label: nativeLang,
+                value: lang,
+              },
+            };
+          }),
+        },
+      ],
+      listeners: [
+        {
+          type: "command",
+          listener: (e: Event) => {
+            ztoolkit.log(e);
+            setPref("targetLanguage", (e.target as XUL.MenuList).value);
+          },
+        },
+      ],
+    },
+    doc.querySelector(`#${config.addonRef}-target-language-placeholder`)!,
+  );
+
+  const translateModes = [
+    {
+      label: "双语模式",
+      value: "dual",
+    },
+    {
+      label: "仅译文",
+      value: "translation",
+    },
+  ];
+
+  const translateModels = [
+    {
+      label: "glm-4-flash",
+      value: "glm-4-flash",
+    },
+    {
+      label: "DeepSeek",
+      value: "DeepSeek",
+    },
+  ];
+
+  ztoolkit.UI.replaceElement(
+    {
+      tag: "menulist",
+      id: `${config.addonRef}-translate-mode`,
+      attributes: {
+        value: getPref("translateMode") as string,
+        native: "true",
+      },
+      styles: {
+        maxWidth: "250px",
+      },
+      children: [
+        {
+          tag: "menupopup",
+          children: translateModes.map((item) => {
+            return {
+              tag: "menuitem",
+              attributes: {
+                label: item.label,
+                value: item.value,
+              },
+            };
+          }),
+        },
+      ],
+      listeners: [
+        {
+          type: "command",
+          listener: (e: Event) => {
+            ztoolkit.log(e);
+            setPref("translateMode", (e.target as XUL.MenuList).value);
+          },
+        },
+      ],
+    },
+    doc.querySelector(`#${config.addonRef}-translate-mode-placeholder`)!,
+  );
+
+  ztoolkit.UI.replaceElement(
+    {
+      tag: "menulist",
+      id: `${config.addonRef}-translate-model`,
+      attributes: {
+        value: getPref("translateModel") as string,
+        native: "true",
+      },
+      styles: {
+        maxWidth: "250px",
+      },
+      children: [
+        {
+          tag: "menupopup",
+          children: translateModels.map((item) => {
+            return {
+              tag: "menuitem",
+              attributes: {
+                label: item.label,
+                value: item.value,
+              },
+            };
+          }),
+        },
+      ],
+      listeners: [
+        {
+          type: "command",
+          listener: (e: Event) => {
+            ztoolkit.log(e);
+            setPref("translateModel", (e.target as XUL.MenuList).value);
+          },
+        },
+      ],
+    },
+    doc.querySelector(`#${config.addonRef}-translate-model-placeholder`)!,
+  );
 }
 
 function bindPrefEvents() {
@@ -51,7 +196,5 @@ function bindPrefEvents() {
     )
     ?.addEventListener("command", async (e: Event) => {
       ztoolkit.log(e);
-      setPref("translationTaskList", JSON.stringify([]));
-      setPref("translationGlobalQueue", JSON.stringify([]));
     });
 }

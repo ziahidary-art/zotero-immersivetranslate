@@ -7,10 +7,12 @@
 declare namespace _ZoteroTypes {
   interface Prefs {
     PluginPrefsMap: {
-      "enable": boolean;
       "authkey": string;
-      "translationTaskList": string;
-      "translationGlobalQueue": string;
+      "targetLanguage": string;
+      "translateMode": string;
+      "translateModel": string;
+      "enhanceCompatibility": boolean;
+      "autoTranslate": boolean;
     };
   }
 }

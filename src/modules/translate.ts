@@ -1,31 +1,43 @@
 import { saveTranslationData } from "./persistence";
 import { showTaskManager } from "./task";
 import type { TranslationTaskData } from "../types";
+import { getPref } from "../utils/prefs";
 
 const ATTR_TAG = "BabelDOC_translated";
 
 export async function translatePDF() {
-  const tasksToQueue = await getTranslationTasks();
-  if (tasksToQueue.length === 0) {
-    ztoolkit.log("No valid PDF attachments found to add to the queue.");
-    return;
-  }
-  ztoolkit.log(`Adding ${tasksToQueue.length} translation tasks to the queue.`);
-  addon.data.task.translationGlobalQueue.push(...tasksToQueue); // Add new tasks
+  const translateMode = getPref("translateMode");
+  const translateModel = getPref("translateModel");
+  const targetLanguage = getPref("targetLanguage");
+  const autoTranslate = getPref("autoTranslate");
+  const enhanceCompatibility = getPref("enhanceCompatibility");
 
-  // Deep clone the tasks to translationTaskList for tracking
-  if (!addon.data.task.translationTaskList) {
-    addon.data.task.translationTaskList = [];
-  }
-  const clonedTasks = tasksToQueue.map((task) =>
-    JSON.parse(JSON.stringify(task)),
-  );
-  addon.data.task.translationTaskList.push(...clonedTasks);
+  ztoolkit.log(`translateMode: ${translateMode}`);
+  ztoolkit.log(`translateModel: ${translateModel}`);
+  ztoolkit.log(`targetLanguage: ${targetLanguage}`);
+  ztoolkit.log(`autoTranslate: ${autoTranslate}`);
+  ztoolkit.log(`enhanceCompatibility: ${enhanceCompatibility}`);
+  // const tasksToQueue = await getTranslationTasks();
+  // if (tasksToQueue.length === 0) {
+  //   ztoolkit.log("No valid PDF attachments found to add to the queue.");
+  //   return;
+  // }
+  // ztoolkit.log(`Adding ${tasksToQueue.length} translation tasks to the queue.`);
+  // addon.data.task.translationGlobalQueue.push(...tasksToQueue); // Add new tasks
 
-  // Save the updated queues
-  saveTranslationData();
+  // // Deep clone the tasks to translationTaskList for tracking
+  // if (!addon.data.task.translationTaskList) {
+  //   addon.data.task.translationTaskList = [];
+  // }
+  // const clonedTasks = tasksToQueue.map((task) =>
+  //   JSON.parse(JSON.stringify(task)),
+  // );
+  // addon.data.task.translationTaskList.push(...clonedTasks);
 
-  startQueueProcessing();
+  // // Save the updated queues
+  // saveTranslationData();
+
+  // startQueueProcessing();
 }
 
 // get translation tasks from selected items
@@ -259,7 +271,7 @@ async function handleSingleItemTranslation(
     targetLanguage: "zh-CN", // TODO: Make configurable
     requestModel: "glm-4-flash", // TODO: Make configurable
     enhance_compatibility: false,
-    turnstileResponse: "", // TODO: Handle CAPTCHA if needed
+    turnstileResponse: "",
   });
 
   ztoolkit.log(

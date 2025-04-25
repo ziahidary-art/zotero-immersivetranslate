@@ -1,5 +1,7 @@
 /* eslint-disable no-undef */
-pref("enable", true);
 pref("authkey", "");
-pref("translationTaskList", "");
-pref("translationGlobalQueue", "");
+pref("targetLanguage", "zh-CN");
+pref("translateMode", "dual");
+pref("translateModel", "glm-4-flash");
+pref("enhanceCompatibility", false);
+pref("autoTranslate", false);

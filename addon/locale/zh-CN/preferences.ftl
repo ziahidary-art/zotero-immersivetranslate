@@ -1,6 +1,11 @@
 pref-title = 通用
-pref-enable =
-    .label = 是否启用
-pref-authkey = 输入 authKey
-pref-button = 清空缓存
+pref-enable-autoTranslate =
+    .label = 是否启用自动翻译
+pref-enable-compatibility =
+    .label = 是否兼容模式
+pref-authkey = 输入授权码
+pref-translate-model = 翻译模型
+pref-translate-mode = 翻译模式
+pref-target-language = 目标语言
+pref-test-button = 测试
 pref-help = { $name } Build { $version } { $time }
