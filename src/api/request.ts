@@ -43,16 +43,18 @@ export async function request({
     }
     if (res.response) {
       if (res.response.code === 0) {
-        ztoolkit.log(res.response.data);
         return res.response.data;
       } else {
-        handleError(new Error(res.response.message));
+        handleError(new Error(res.response.message || res.response.error));
       }
     }
     return res.response;
   } catch (error: any) {
-    ztoolkit.log(error);
-    handleError(error);
+    if (error?.xmlhttp?.response) {
+      handleError(new Error(error.xmlhttp.response.error));
+    } else {
+      handleError(error);
+    }
   }
 }
 

@@ -131,6 +131,9 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
           task.status !== "success" &&
           task.status !== "failed",
       );
+      // TODO 检查是否是已成功的翻译任务，给予提示
+      // 1. 在 tasklist 中，并且状态是成功
+      // 2. 有同名称的带 babeldoc tag 的翻译结果附件
       if (isInTaskList) {
         ztoolkit.log(
           `Attachment ${attachmentId} (${attachmentFilename}) is already in the translation task list, skipping.`,
@@ -412,7 +415,10 @@ async function monitorTranslationTask(
       );
       ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
       // Update task status in taskList
-      updateTaskInList(taskData.attachmentId, { status: "failed", stage: "" });
+      updateTaskInList(taskData.attachmentId, {
+        status: "failed",
+        error: error.message || error,
+      });
     }
   }
 }
@@ -426,6 +432,7 @@ function updateTaskInList(
     pdfId?: string;
     progress?: number;
     resultAttachmentId?: number;
+    error?: string;
   },
 ) {
   if (!addon.data.task.translationTaskList) return;
@@ -578,28 +585,7 @@ async function pollTranslationProgress(
         error.message || error,
       );
 
-      // If it's a translation failure error re-thrown from the checks above, propagate it
-      if (error.message?.startsWith("Translation failed")) {
-        throw error; // Exit loop by re-throwing
-      }
-
-      // For other errors (network issues, etc.), log, set a temporary status, and wait before retrying
-      ztoolkit.ExtraField.setExtraField(
-        parentItem,
-        "imt_BabelDOC_status",
-        `failed`,
-      );
-      ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
-
-      updateTaskInList(attachmentId, {
-        status: "failed",
-        stage: "",
-        progress: 0,
-      });
-
-      // Still wait longer after a connection error before the next attempt
-      await Zotero.Promise.delay(POLLING_INTERVAL_MS * 2);
-      // The loop will continue and retry the getTranslateStatus call
+      throw error; // Exit loop by re-throwing
     }
   }
 }
@@ -723,11 +709,6 @@ async function downloadTranslateResult({
       `failed`,
     );
     ztoolkit.ExtraField.setExtraField(parentItem, "imt_BabelDOC_stage", "");
-
-    // Update failed status in taskList
-    updateTaskInList(taskData.attachmentId, {
-      status: "failed",
-    });
 
     throw error;
   }
