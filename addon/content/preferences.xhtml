@@ -1,9 +1,10 @@
 <linkset>
   <html:link rel="localization" href="__addonRef__-preferences.ftl" />
 </linkset>
-<groupbox
+<vbox
   onload="Zotero.__addonInstance__.hooks.onPrefsEvent('load', { window });"
 >
+<groupbox>
   <label><html:h2 data-l10n-id="pref-title"></html:h2></label>
   <hbox align="center">
     <html:label
@@ -20,6 +21,19 @@
         data-l10n-id="pref-test-button"
     ></button>
   </hbox>
+  <hbox align="center">
+    <label
+      data-l10n-id="pref-imt-site"
+      is="zotero-text-link"
+      class="zotero-text-link"
+      href="https://immersivetranslate.com/profile"
+      style="margin-right: 4px"
+    ></label>
+  </hbox>
+
+</groupbox>
+<groupbox>
+  <label><html:h2 data-l10n-id="pref-translate-settings"></html:h2></label>
   <hbox align="center">
     <label data-l10n-id="pref-target-language"></label>
     <!-- Replace -->
@@ -52,9 +66,27 @@
     />
   </vbox>
 </groupbox>
-<vbox>
-  <html:label
-    data-l10n-id="pref-help"
+
+<groupbox>
+  <label><html:h2 data-l10n-id="pref-about"></html:h2></label>
+  <label
+    data-l10n-id="pref-about-version"
     data-l10n-args='{"time": "__buildTime__","name": "__addonName__","version":"__buildVersion__"}'
-  ></html:label>
-</vbox>
+  ></label>
+  <hbox align="center">
+    <label
+      data-l10n-id="pref-about-feedback"
+      is="zotero-text-link"
+      class="zotero-text-link"
+      href="https://github.com/immersive-translate/zotero-babeldoc"
+      style="margin-right: 4px"
+    ></label>
+    <label
+      data-l10n-id="pref-about-docs"
+      is="zotero-text-link"
+      class="zotero-text-link"
+      href="https://github.com/immersive-translate/zotero-babeldoc"
+    ></label>
+  </hbox>
+</groupbox>
+</vbox> 

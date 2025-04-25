@@ -1,8 +1,8 @@
 import { config } from "../../package.json";
-import { getPdfUploadUrl } from "../api";
 import { getString } from "../utils/locale";
 import { getPref, setPref } from "../utils/prefs";
 import { getLanguages, nativeLangMap } from "./language";
+import { translateModes, translateModels } from "../config";
 
 export function registerPrefs() {
   Zotero.PreferencePanes.register({
@@ -70,28 +70,6 @@ function buildPrefsPane() {
     },
     doc.querySelector(`#${config.addonRef}-target-language-placeholder`)!,
   );
-
-  const translateModes = [
-    {
-      label: "双语模式",
-      value: "dual",
-    },
-    {
-      label: "仅译文",
-      value: "translation",
-    },
-  ];
-
-  const translateModels = [
-    {
-      label: "glm-4-flash",
-      value: "glm-4-flash",
-    },
-    {
-      label: "DeepSeek",
-      value: "DeepSeek",
-    },
-  ];
 
   ztoolkit.UI.replaceElement(
     {
@@ -192,9 +170,16 @@ function bindPrefEvents() {
 
   addon.data
     .prefs!.window.document?.querySelector(
-      `#zotero-prefpane-${config.addonRef}-button`,
+      `#zotero-prefpane-${config.addonRef}-test-button`,
     )
     ?.addEventListener("command", async (e: Event) => {
       ztoolkit.log(e);
+      try {
+        const url = await addon.api.getPdfUploadUrl();
+        Zotero.getMainWindow().alert("测试成功");
+      } catch (error) {
+        ztoolkit.log(error);
+        Zotero.getMainWindow().alert("测试失败，请检查授权码是否正确");
+      }
     });
 }
