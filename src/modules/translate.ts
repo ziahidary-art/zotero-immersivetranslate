@@ -6,38 +6,32 @@ import { getPref } from "../utils/prefs";
 const ATTR_TAG = "BabelDOC_translated";
 
 export async function translatePDF() {
+  const tasksToQueue = await getTranslationTasks();
   const translateMode = getPref("translateMode");
   const translateModel = getPref("translateModel");
   const targetLanguage = getPref("targetLanguage");
   const autoTranslate = getPref("autoTranslate");
   const enhanceCompatibility = getPref("enhanceCompatibility");
+  if (tasksToQueue.length === 0) {
+    ztoolkit.log("No valid PDF attachments found to add to the queue.");
+    return;
+  }
+  ztoolkit.log(`Adding ${tasksToQueue.length} translation tasks to the queue.`);
+  addon.data.task.translationGlobalQueue.push(...tasksToQueue); // Add new tasks
 
-  ztoolkit.log(`translateMode: ${translateMode}`);
-  ztoolkit.log(`translateModel: ${translateModel}`);
-  ztoolkit.log(`targetLanguage: ${targetLanguage}`);
-  ztoolkit.log(`autoTranslate: ${autoTranslate}`);
-  ztoolkit.log(`enhanceCompatibility: ${enhanceCompatibility}`);
-  // const tasksToQueue = await getTranslationTasks();
-  // if (tasksToQueue.length === 0) {
-  //   ztoolkit.log("No valid PDF attachments found to add to the queue.");
-  //   return;
-  // }
-  // ztoolkit.log(`Adding ${tasksToQueue.length} translation tasks to the queue.`);
-  // addon.data.task.translationGlobalQueue.push(...tasksToQueue); // Add new tasks
+  // Deep clone the tasks to translationTaskList for tracking
+  if (!addon.data.task.translationTaskList) {
+    addon.data.task.translationTaskList = [];
+  }
+  const clonedTasks = tasksToQueue.map((task) =>
+    JSON.parse(JSON.stringify(task)),
+  );
+  addon.data.task.translationTaskList.push(...clonedTasks);
 
-  // // Deep clone the tasks to translationTaskList for tracking
-  // if (!addon.data.task.translationTaskList) {
-  //   addon.data.task.translationTaskList = [];
-  // }
-  // const clonedTasks = tasksToQueue.map((task) =>
-  //   JSON.parse(JSON.stringify(task)),
-  // );
-  // addon.data.task.translationTaskList.push(...clonedTasks);
+  // Save the updated queues
+  saveTranslationData();
 
-  // // Save the updated queues
-  // saveTranslationData();
-
-  // startQueueProcessing();
+  startQueueProcessing();
 }
 
 // get translation tasks from selected items
@@ -263,14 +257,17 @@ async function handleSingleItemTranslation(
   }
   ztoolkit.log(`Upload successful for: ${taskData.attachmentFilename}`);
 
+  const translateModel = getPref("translateModel");
+  const targetLanguage = getPref("targetLanguage");
+  const enhanceCompatibility = getPref("enhanceCompatibility");
   // --- Create Task ---
   const pdfId = await addon.api.createTranslateTask({
     objectKey: uploadInfo.result.objectKey, // Use the objectKey from the single upload
     pdfOptions: { conversion_formats: { html: true } },
     fileName: taskData.attachmentFilename, // Use the specific attachment filename
-    targetLanguage: "zh-CN", // TODO: Make configurable
-    requestModel: "glm-4-flash", // TODO: Make configurable
-    enhance_compatibility: false,
+    targetLanguage: targetLanguage, // TODO: Make configurable
+    requestModel: translateModel, // TODO: Make configurable
+    enhance_compatibility: enhanceCompatibility,
     turnstileResponse: "",
   });
 
@@ -511,8 +508,12 @@ async function downloadTranslateResult({
       `Download Result Info for ${taskData.attachmentFilename}:`,
       result,
     );
+    const translateMode = getPref("translateMode");
 
-    const fileUrl = result.translationDualPdfOssUrl;
+    const fileUrl =
+      translateMode === "dual"
+        ? result.translationDualPdfOssUrl
+        : result.translationOnlyPdfOssUrl;
     if (!fileUrl) {
       throw new Error(
         `No download URL found for ${taskData.attachmentFilename}.`,
@@ -540,9 +541,8 @@ async function downloadTranslateResult({
     // Use taskData.attachmentFilename for renaming
     const originalFilename = taskData.attachmentFilename;
     const baseName = originalFilename.replace(/\.pdf$/i, "");
-    const targetLang = "zh_CN"; // TODO: Get from config
-    const MODE = "dual";
-    const fileName = `${baseName}_${targetLang}_${MODE}.pdf`;
+    const targetLanguage = getPref("targetLanguage");
+    const fileName = `${baseName}_${targetLanguage}_${translateMode}.pdf`;
 
     const tempDir = PathUtils.tempDir || Zotero.getTempDirectory().path;
     const tempPath = PathUtils.join(tempDir, fileName);
