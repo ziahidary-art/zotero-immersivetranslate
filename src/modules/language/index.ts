@@ -17,6 +17,18 @@ export const getLanguages: () => Language[] = () => {
   });
 };
 
+export const getLanguageOptions: () => {
+  value: string;
+  label: string;
+}[] = () => {
+  return getLanguages().map((lang) => {
+    return {
+      value: lang,
+      label: nativeLangMap[lang] || lang,
+    };
+  });
+};
+
 export const getLanguageName: (
   lang: Language,
   interfaceLanguage: Language,

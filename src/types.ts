@@ -15,6 +15,7 @@ export type TranslationTaskData = {
   targetLanguage: string;
   translateModel: string;
   translateMode: string;
+  enhanceCompatibility: boolean;
   pdfId?: string;
   status?: string;
   stage?: string;
