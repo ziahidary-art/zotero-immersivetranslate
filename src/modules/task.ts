@@ -116,6 +116,21 @@ export async function showTaskManager() {
             fixedWidth: false,
           },
           {
+            dataKey: "targetLanguage",
+            label: "目标语言",
+            fixedWidth: false,
+          },
+          {
+            dataKey: "translateModel",
+            label: "翻译模型",
+            fixedWidth: false,
+          },
+          {
+            dataKey: "translateMode",
+            label: "翻译模式",
+            fixedWidth: false,
+          },
+          {
             dataKey: "pdfId",
             label: "pdfId",
             fixedWidth: false,
@@ -164,6 +179,9 @@ export async function showTaskManager() {
           progress: `${task.progress || "0"}%` || "0%",
           parentItemTitle: task.parentItemTitle || "",
           attachmentFilename: task.attachmentFilename || "",
+          targetLanguage: task.targetLanguage || "",
+          translateModel: task.translateModel || "",
+          translateMode: task.translateMode || "",
           stage: task.stage || "",
           pdfId: task.pdfId || "",
           error: task.error || "",

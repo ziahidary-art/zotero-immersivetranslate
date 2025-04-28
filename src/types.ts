@@ -12,6 +12,9 @@ export type TranslationTaskData = {
   attachmentId: number;
   attachmentFilename: string;
   attachmentPath: string;
+  targetLanguage: string;
+  translateModel: string;
+  translateMode: string;
   pdfId?: string;
   status?: string;
   stage?: string;

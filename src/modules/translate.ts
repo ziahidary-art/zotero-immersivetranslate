@@ -10,7 +10,6 @@ export async function translatePDF() {
   const translateMode = getPref("translateMode");
   const translateModel = getPref("translateModel");
   const targetLanguage = getPref("targetLanguage");
-  const autoTranslate = getPref("autoTranslate");
   const enhanceCompatibility = getPref("enhanceCompatibility");
   if (tasksToQueue.length === 0) {
     ztoolkit.log("No valid PDF attachments found to add to the queue.");
@@ -118,6 +117,9 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
       const exists = await attachment.fileExists();
       if (exists) {
         const filePath = await attachment.getFilePathAsync();
+        const translateMode = getPref("translateMode");
+        const translateModel = getPref("translateModel");
+        const targetLanguage = getPref("targetLanguage");
         if (filePath && attachmentFilename) {
           tasks.push({
             parentItemId: parentItem?.id,
@@ -126,6 +128,9 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
             attachmentFilename: attachmentFilename,
             attachmentPath: filePath,
             status: "queued",
+            targetLanguage: targetLanguage,
+            translateModel: translateModel,
+            translateMode: translateMode,
           });
         } else {
           ztoolkit.log(
