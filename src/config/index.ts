@@ -11,11 +11,23 @@ export const translateModes = [
 
 export const translateModels = [
   {
-    label: "glm-4-flash",
-    value: "glm-4-flash",
+    label: "DeepSeek",
+    value: "deepseek",
   },
   {
-    label: "DeepSeek",
-    value: "DeepSeek",
+    label: "glm-4-plus",
+    value: "glm-4-plus",
+  },
+  {
+    label: "OpenAI",
+    value: "gpt-4.1-mini-2025-04-14",
+  },
+  {
+    label: "Gemini",
+    value: "gemini-2.0-flash-001",
+  },
+  {
+    label: "glm-4-flash",
+    value: "glm-4-flash",
   },
 ];
