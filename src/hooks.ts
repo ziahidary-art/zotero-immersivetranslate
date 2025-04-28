@@ -30,10 +30,6 @@ async function onStartup() {
 
   initLocale();
 
-  registerMenu();
-
-  registerWindowMenu();
-
   registerPrefs();
 
   registerNotifier(["item", "file"]);
@@ -84,6 +80,10 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
     progress: 30,
     text: `[30%] ${getString("startup-begin")}`,
   });
+
+  registerMenu();
+
+  registerWindowMenu();
 
   registerPrompt();
 
