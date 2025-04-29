@@ -1,10 +1,5 @@
-import {
-  setTask,
-  clearTasks,
-  getTaskKeys,
-  getTaskText,
-} from "./task/controller";
-import type { TranslationTaskData } from "../types";
+import { setTask, clearTasks, getTaskKeys, getTaskText } from "./store";
+import type { TranslationTaskData } from "../../types";
 
 /**
  * 加载已保存的翻译任务数据

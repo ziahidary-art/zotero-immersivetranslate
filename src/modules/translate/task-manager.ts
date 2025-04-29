@@ -1,6 +1,6 @@
-import { isWindowAlive } from "../utils/window";
-import { config } from "../../package.json";
-import { getString } from "../utils/locale";
+import { isWindowAlive } from "../../utils/window";
+import { config } from "../../../package.json";
+import { getString } from "../../utils/locale";
 /**
  * 显示翻译任务列表的弹窗
  */

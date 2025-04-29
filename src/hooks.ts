@@ -12,14 +12,17 @@ import {
   registerAnonymousCommandExample,
   registerConditionalCommandExample,
 } from "./modules/prompt";
-import { translatePDF, startQueueProcessing } from "./modules/translate";
+import {
+  translatePDF,
+  startQueueProcessing,
+} from "./modules/translate/translate";
 import {
   loadSavedTranslationData,
   restoreUnfinishedTasks,
   saveTranslationData,
-} from "./modules/persistence";
-import { showTaskManager } from "./modules/task";
-import { initTasks } from "./modules/task/controller";
+} from "./modules/translate/persistence";
+import { showTaskManager } from "./modules/translate/task-manager";
+import { initTasks } from "./modules/translate/store";
 
 async function onStartup() {
   await Promise.all([
