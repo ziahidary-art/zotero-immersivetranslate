@@ -3,7 +3,8 @@ import { showTaskManager, updateTaskInList } from "./task-manager";
 import type { TranslationTaskData } from "../../types";
 import { getPref } from "../../utils/prefs";
 import { showConfirmationDialog } from "./confirm-dialog";
-import { translatePDF, monitorTranslationTask } from "./translate";
+import { translatePDF } from "./translate";
+import { TranslationTaskMonitor } from "./task-monitor";
 
 const ATTR_TAG = "BabelDOC_translated";
 
@@ -215,24 +216,7 @@ async function processNextItem() {
         `恢复已有pdfId(${taskData.pdfId})的任务: ${taskData.attachmentFilename}，直接进入监控阶段`,
       );
       // 直接启动监控任务
-      monitorTranslationTask(taskData.pdfId, taskData, parentItem).catch(
-        (error: any) => {
-          ztoolkit.log(
-            `ERROR: Background monitoring task failed unexpectedly for PDF ID ${taskData.pdfId} (${taskData.attachmentFilename}):`,
-            error.message || error,
-          );
-          try {
-            updateTaskInList(taskData.attachmentId, {
-              status: "failed",
-              error: error.message || error,
-            });
-          } catch (updateError: any) {
-            ztoolkit.log(
-              `ERROR: Failed to update parent item status after monitoring error for ${taskData.pdfId}: ${updateError.message || updateError}`,
-            );
-          }
-        },
-      );
+      TranslationTaskMonitor.addTask(taskData.pdfId, taskData, parentItem);
     } else {
       // 常规流程 - 从上传开始
       await translatePDF(taskData, parentItem);
