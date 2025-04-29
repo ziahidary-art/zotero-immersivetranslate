@@ -13,9 +13,9 @@ import {
   registerConditionalCommandExample,
 } from "./modules/prompt";
 import {
-  translatePDF,
+  addTasksToQueue,
   startQueueProcessing,
-} from "./modules/translate/translate";
+} from "./modules/translate/task";
 import {
   loadSavedTranslationData,
   restoreUnfinishedTasks,
@@ -153,7 +153,7 @@ function onShortcuts(type: string) {}
 function onDialogEvents(type: string) {}
 
 function onTranslate() {
-  translatePDF();
+  addTasksToQueue();
 }
 
 function onViewTranslationTasks() {

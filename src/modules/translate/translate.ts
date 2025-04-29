@@ -1,260 +1,8 @@
-import { saveTranslationData } from "./persistence";
-import { showTaskManager } from "./task-manager";
 import type { TranslationTaskData } from "../../types";
-import { getPref } from "../../utils/prefs";
-import { showConfirmationDialog } from "./confirm-dialog";
-
+import { updateTaskInList } from "./task-manager";
 const ATTR_TAG = "BabelDOC_translated";
 
-export async function translatePDF() {
-  const tasksToQueue = await getTranslationTasks();
-
-  if (tasksToQueue.length === 0) {
-    ztoolkit.log("No valid PDF attachments found to add to the queue.");
-    ztoolkit.getGlobal("alert")("没有找到可以翻译的 PDF");
-    return;
-  }
-  const translateMode = getPref("translateMode");
-  const translateModel = getPref("translateModel");
-  const targetLanguage = getPref("targetLanguage");
-  const enhanceCompatibility = getPref("enhanceCompatibility");
-  const confirmResult = await showConfirmationDialog();
-  if (confirmResult.action === "cancel") {
-    return;
-  }
-
-  tasksToQueue.forEach((task) => {
-    task.translateMode = confirmResult.data?.translateMode || translateMode;
-    task.translateModel = confirmResult.data?.translateModel || translateModel;
-    task.targetLanguage = confirmResult.data?.targetLanguage || targetLanguage;
-    task.enhanceCompatibility =
-      confirmResult.data?.enhanceCompatibility || enhanceCompatibility;
-  });
-  ztoolkit.log(`Adding ${tasksToQueue.length} translation tasks to the queue.`);
-  addon.data.task.translationGlobalQueue.push(...tasksToQueue); // Add new tasks
-
-  // Deep clone the tasks to translationTaskList for tracking
-  if (!addon.data.task.translationTaskList) {
-    addon.data.task.translationTaskList = [];
-  }
-  const clonedTasks = tasksToQueue.map((task) =>
-    JSON.parse(JSON.stringify(task)),
-  );
-  addon.data.task.translationTaskList.push(...clonedTasks);
-
-  // Save the updated queues
-  saveTranslationData();
-
-  startQueueProcessing();
-}
-
-// get translation tasks from selected items
-async function getTranslationTasks(): Promise<TranslationTaskData[]> {
-  const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
-  const tasks: TranslationTaskData[] = [];
-
-  for (const item of selectedItems) {
-    let parentItem: Zotero.Item | null = null;
-    const attachmentsToProcess: Zotero.Item[] = [];
-
-    if (item.isRegularItem()) {
-      parentItem = item;
-      const attachmentIds = item.getAttachments(false);
-      // 只处理PDF附件
-      for (const id of attachmentIds) {
-        const attachment = Zotero.Items.get(id);
-        const hasTranslatedTag = attachment
-          .getTags()
-          .find((tagItem) => tagItem.tag === ATTR_TAG);
-        if (hasTranslatedTag) {
-          ztoolkit.log(
-            `Attachment ${id} is already a translation result, skipping.`,
-          );
-          continue;
-        }
-        if (attachment && attachment.isPDFAttachment()) {
-          attachmentsToProcess.push(attachment);
-        }
-      }
-    } else if (item.isPDFAttachment()) {
-      const hasTranslatedTag = item
-        .getTags()
-        .find((tagItem) => tagItem.tag === ATTR_TAG);
-      if (hasTranslatedTag) {
-        ztoolkit.log(
-          `Attachment ${item.id} is already a translation result, skipping.`,
-        );
-        continue;
-      }
-      const parentItemId = item.parentItemID;
-
-      if (parentItemId) {
-        const potentialParent = Zotero.Items.get(parentItemId);
-        if (potentialParent && potentialParent.isRegularItem()) {
-          parentItem = potentialParent;
-          attachmentsToProcess.push(item); // Only process the selected attachment
-        } else {
-          ztoolkit.log(
-            `Attachment ${item.id} has no valid parent item, skipping.`,
-          );
-          continue;
-        }
-      } else {
-        attachmentsToProcess.push(item);
-      }
-    }
-
-    for (const attachment of attachmentsToProcess) {
-      const attachmentId = attachment.id;
-      const attachmentFilename =
-        attachment.attachmentFilename || `Attachment ${attachmentId}`;
-
-      // Check attachment is already in the translation task list?
-      const isInTaskList = addon.data.task.translationTaskList.find(
-        (task) =>
-          task.attachmentId === attachmentId &&
-          task.status !== "success" &&
-          task.status !== "failed",
-      );
-      // TODO 检查是否是已成功的翻译任务，给予提示
-      // 1. 在 tasklist 中，并且状态是成功
-      // 2. 有同名称的带 babeldoc tag 的翻译结果附件
-      if (isInTaskList) {
-        ztoolkit.log(
-          `Attachment ${attachmentId} (${attachmentFilename}) is already in the translation task list, skipping.`,
-        );
-        continue;
-      }
-      // --- End Deduplication Checks ---
-
-      // Proceed only if not deduplicated
-      const exists = await attachment.fileExists();
-      if (exists) {
-        const filePath = await attachment.getFilePathAsync();
-        const translateMode = getPref("translateMode");
-        const translateModel = getPref("translateModel");
-        const targetLanguage = getPref("targetLanguage");
-        const enhanceCompatibility = getPref("enhanceCompatibility");
-        if (filePath && attachmentFilename) {
-          tasks.push({
-            parentItemId: parentItem?.id,
-            parentItemTitle: parentItem?.getField("title"),
-            attachmentId: attachmentId,
-            attachmentFilename: attachmentFilename,
-            attachmentPath: filePath,
-            status: "queued",
-            targetLanguage: targetLanguage,
-            translateModel: translateModel,
-            translateMode: translateMode,
-            enhanceCompatibility: enhanceCompatibility,
-          });
-        } else {
-          ztoolkit.log(
-            `Could not get path or valid filename for attachment ${attachmentId}, skipping.`,
-          );
-        }
-      } else {
-        ztoolkit.log(
-          `Attachment file does not exist for ${attachmentId}, skipping.`,
-        );
-      }
-    }
-  }
-
-  ztoolkit.log("Found tasks (after refined deduplication):", tasks);
-  return tasks;
-}
-
-export async function startQueueProcessing() {
-  if (
-    addon.data.task.isQueueProcessing ||
-    addon.data.task.translationGlobalQueue.length === 0
-  ) {
-    return; // Already running or queue empty
-  }
-  showTaskManager();
-  addon.data.task.isQueueProcessing = true;
-  ztoolkit.log("Starting queue processing loop.");
-  // Use Zotero.Promise.delay(0).then() to avoid deep recursion and yield
-  Zotero.Promise.delay(0).then(processNextItem);
-}
-
-async function processNextItem() {
-  if (addon.data.task.translationGlobalQueue.length === 0) {
-    addon.data.task.isQueueProcessing = false;
-    ztoolkit.log("Translation queue empty. Stopping processing loop.");
-    saveTranslationData(); // Save the empty queue state
-    return;
-  }
-
-  // Rename queueItem to taskData for clarity
-  const taskData = addon.data.task.translationGlobalQueue.shift();
-
-  // Save queue state after removing an item
-  saveTranslationData();
-
-  if (!taskData) {
-    Zotero.Promise.delay(0).then(processNextItem);
-    return;
-  }
-
-  // Get the parent item using parentItemId from taskData
-  const parentItem = taskData.parentItemId
-    ? Zotero.Items.get(taskData.parentItemId)
-    : undefined;
-
-  ztoolkit.log(
-    `Processing task for attachment: ${taskData.attachmentFilename} (Parent: ${taskData.parentItemTitle}, ID: ${taskData.parentItemId})`,
-  );
-
-  try {
-    // 如果任务已经有pdfId，说明是程序重启后恢复的任务，并且已经创建了翻译任务
-    if (taskData.pdfId) {
-      ztoolkit.log(
-        `恢复已有pdfId(${taskData.pdfId})的任务: ${taskData.attachmentFilename}，直接进入监控阶段`,
-      );
-      // 直接启动监控任务
-      monitorTranslationTask(taskData.pdfId, taskData, parentItem).catch(
-        (error: any) => {
-          ztoolkit.log(
-            `ERROR: Background monitoring task failed unexpectedly for PDF ID ${taskData.pdfId} (${taskData.attachmentFilename}):`,
-            error.message || error,
-          );
-          try {
-            updateTaskInList(taskData.attachmentId, {
-              status: "failed",
-              error: error.message || error,
-            });
-          } catch (updateError: any) {
-            ztoolkit.log(
-              `ERROR: Failed to update parent item status after monitoring error for ${taskData.pdfId}: ${updateError.message || updateError}`,
-            );
-          }
-        },
-      );
-    } else {
-      // 常规流程 - 从上传开始
-      await handleSingleItemTranslation(taskData, parentItem);
-      ztoolkit.log(
-        `Initiated processing for: ${taskData.attachmentFilename}. Moving to next queue item.`,
-      );
-    }
-  } catch (error: any) {
-    ztoolkit.log(
-      `ERROR: Failed to initiate translation for ${taskData.attachmentFilename}:`,
-      error.message || error,
-    );
-    updateTaskInList(taskData.attachmentId, {
-      status: "failed",
-    });
-  } finally {
-    Zotero.Promise.delay(0).then(processNextItem);
-  }
-}
-
-// Renamed from consumeQueueData, now only handles INITIATION
-// Accepts TranslationTaskData and the parent Zotero.Item
-async function handleSingleItemTranslation(
+export async function translatePDF(
   taskData: TranslationTaskData,
   parentItem?: Zotero.Item,
 ): Promise<void> {
@@ -266,29 +14,23 @@ async function handleSingleItemTranslation(
   });
 
   // --- Upload ---
-  // Call the renamed uploadAttachmentFile function, passing path and filename
   const uploadInfo = await uploadAttachmentFile(
     taskData.attachmentPath,
     taskData.attachmentFilename,
   ); // Wait for upload
-  // uploadInfo is now a single object, not an array
   if (!uploadInfo) {
-    // Should not happen if uploadAttachmentFile throws on error, but check anyway
     throw new Error(`Upload failed for ${taskData.attachmentFilename}`);
   }
   ztoolkit.log(`Upload successful for: ${taskData.attachmentFilename}`);
 
-  const translateModel = getPref("translateModel");
-  const targetLanguage = getPref("targetLanguage");
-  const enhanceCompatibility = getPref("enhanceCompatibility");
   // --- Create Task ---
   const pdfId = await addon.api.createTranslateTask({
-    objectKey: uploadInfo.result.objectKey, // Use the objectKey from the single upload
+    objectKey: uploadInfo.result.objectKey,
     pdfOptions: { conversion_formats: { html: true } },
-    fileName: taskData.attachmentFilename, // Use the specific attachment filename
-    targetLanguage: targetLanguage, // TODO: Make configurable
-    requestModel: translateModel, // TODO: Make configurable
-    enhance_compatibility: enhanceCompatibility,
+    fileName: taskData.attachmentFilename,
+    targetLanguage: taskData.targetLanguage,
+    requestModel: taskData.translateModel,
+    enhance_compatibility: taskData.enhanceCompatibility,
     turnstileResponse: "",
   });
 
@@ -296,7 +38,6 @@ async function handleSingleItemTranslation(
     `Translation task created for ${taskData.attachmentFilename}. PDF ID: ${pdfId}`,
   );
   // Update taskData with pdfId for the monitoring task
-  taskData.pdfId = pdfId;
   updateTaskInList(taskData.attachmentId, {
     status: "translating",
     stage: "queued",
@@ -326,12 +67,11 @@ async function handleSingleItemTranslation(
     `Background monitoring started for ${pdfId} (${taskData.attachmentFilename}).`,
   );
 }
-
 // --- Background Task ---
 // This function runs independently for each translation task
-async function monitorTranslationTask(
+export async function monitorTranslationTask(
   pdfId: string,
-  taskData: TranslationTaskData, // Accepts TranslationTaskData
+  taskData: TranslationTaskData,
   parentItem?: Zotero.Item,
 ): Promise<void> {
   try {
@@ -361,35 +101,6 @@ async function monitorTranslationTask(
       error: error.message || error,
     });
   }
-}
-
-// Helper function to update a task in the translationTaskList
-function updateTaskInList(
-  attachmentId: number,
-  updates: {
-    status?: string;
-    stage?: string;
-    pdfId?: string;
-    progress?: number;
-    resultAttachmentId?: number;
-    error?: string;
-  },
-) {
-  if (!addon.data.task.translationTaskList) return;
-
-  const taskIndex = addon.data.task.translationTaskList.findIndex(
-    (task) => task.attachmentId === attachmentId,
-  );
-
-  if (taskIndex !== -1) {
-    addon.data.task.translationTaskList[taskIndex] = {
-      ...addon.data.task.translationTaskList[taskIndex],
-      ...updates,
-    };
-  }
-
-  // Call saveTranslationData after updating the task list
-  saveTranslationData();
 }
 
 // Renamed and refactored to upload a single file
@@ -529,7 +240,7 @@ async function downloadTranslateResult({
       `Download Result Info for ${taskData.attachmentFilename}:`,
       result,
     );
-    const translateMode = getPref("translateMode");
+    const translateMode = taskData.translateMode;
 
     const fileUrl =
       translateMode === "dual"
@@ -562,7 +273,7 @@ async function downloadTranslateResult({
     // Use taskData.attachmentFilename for renaming
     const originalFilename = taskData.attachmentFilename;
     const baseName = originalFilename.replace(/\.pdf$/i, "");
-    const targetLanguage = getPref("targetLanguage");
+    const targetLanguage = taskData.targetLanguage;
     const fileName = `${baseName}_${targetLanguage}_${translateMode}.pdf`;
 
     const tempDir = PathUtils.tempDir || Zotero.getTempDirectory().path;

@@ -1,6 +1,7 @@
 import { isWindowAlive } from "../../utils/window";
 import { config } from "../../../package.json";
 import { getString } from "../../utils/locale";
+import { saveTranslationData } from "./persistence";
 /**
  * 显示翻译任务列表的弹窗
  */
@@ -233,4 +234,33 @@ async function updateTable() {
 
 async function refresh() {
   await updateTable();
+}
+
+// Helper function to update a task in the translationTaskList
+export function updateTaskInList(
+  attachmentId: number,
+  updates: {
+    status?: string;
+    stage?: string;
+    pdfId?: string;
+    progress?: number;
+    resultAttachmentId?: number;
+    error?: string;
+  },
+) {
+  if (!addon.data.task.translationTaskList) return;
+
+  const taskIndex = addon.data.task.translationTaskList.findIndex(
+    (task) => task.attachmentId === attachmentId,
+  );
+
+  if (taskIndex !== -1) {
+    addon.data.task.translationTaskList[taskIndex] = {
+      ...addon.data.task.translationTaskList[taskIndex],
+      ...updates,
+    };
+  }
+
+  // Call saveTranslationData after updating the task list
+  saveTranslationData();
 }
