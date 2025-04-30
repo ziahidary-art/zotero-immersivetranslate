@@ -2,88 +2,12 @@ import { isWindowAlive } from "../../utils/window";
 import { config } from "../../../package.json";
 import { getString } from "../../utils/locale";
 import { saveTranslationData } from "./persistence";
+import { TranslationTaskData } from "../../types";
 /**
  * 显示翻译任务列表的弹窗
  */
 export async function showTaskManager() {
-  // 创建表格数据
-  const tableData = prepareTableData();
-
-  // 准备表格数据
-  function prepareTableData() {
-    return addon.data.task.translationTaskList.map((task, index) => {
-      // 处理任务的显示状态
-      const status = getStatusText(task.status);
-      // 将数据转换为表格需要的格式
-      return {
-        index: (index + 1).toString(),
-        status,
-        progress: task.progress ? `${task.progress}%` : "-",
-        parentItemTitle: task.parentItemTitle,
-        attachmentFilename: task.attachmentFilename,
-        stage: task.stage || "-",
-        // 保存原始数据，用于显示详情或进行操作
-        _task: task,
-      };
-    });
-  }
-
-  // 获取状态文本
-  function getStatusText(status?: string): string {
-    if (!status) return "未知";
-
-    switch (status) {
-      case "queued":
-        return "排队中";
-      case "uploading":
-        return "上传中";
-      case "translating":
-        return "翻译中";
-      case "success":
-        return "已完成";
-      case "failed":
-        return "失败";
-      default:
-        return status;
-    }
-  }
-
-  // 创建表格列配置
-  const columns = [
-    {
-      dataKey: "index",
-      label: "序号",
-      width: 50,
-    },
-    {
-      dataKey: "status",
-      label: "状态",
-      width: 80,
-    },
-    {
-      dataKey: "progress",
-      label: "进度",
-      width: 80,
-    },
-    {
-      dataKey: "parentItemTitle",
-      label: "条目",
-      flex: 2,
-    },
-    {
-      dataKey: "attachmentFilename",
-      label: "附件",
-      flex: 2,
-    },
-    {
-      dataKey: "stage",
-      label: "阶段",
-      flex: 1,
-    },
-  ];
-
   // 创建对话框
-
   if (isWindowAlive(addon.data.task.window)) {
     addon.data.task.window?.focus();
     refresh();
@@ -168,7 +92,7 @@ export async function showTaskManager() {
           }),
         ),
         showHeader: true,
-        multiSelect: true,
+        multiSelect: false,
         staticColumns: false,
         disableFontSizeScaling: true,
       })
@@ -177,7 +101,7 @@ export async function showTaskManager() {
         const task = addon.data.task.translationTaskList[index];
         return {
           status: task.status || "",
-          progress: `${task.progress || "0"}%` || "0%",
+          progress: `${task.progress || "0"}%`,
           parentItemTitle: task.parentItemTitle || "",
           attachmentFilename: task.attachmentFilename || "",
           targetLanguage: task.targetLanguage || "",
@@ -186,23 +110,18 @@ export async function showTaskManager() {
           stage: task.stage || "",
           pdfId: task.pdfId || "",
           error: task.error || "",
+          resultAttachmentId: task.resultAttachmentId?.toString() || "",
         };
       })
-      .setProp("onSelectionChange", (selection) => {
-        // updateButtons();
-        return true;
-      })
-      .setProp("onKeyDown", (event: KeyboardEvent) => {
-        if (
-          event.key == "Delete" ||
-          (Zotero.isMac && event.key == "Backspace")
-        ) {
-          refresh();
-          return false;
+      .setProp("onActivate", () => {
+        const tasks = getSelectedTasks();
+        if (tasks.length > 0) {
+          const task = tasks[0];
+          if (task.pdfId) {
+            new ztoolkit.Clipboard().addText(task.pdfId, "text/unicode").copy();
+            ztoolkit.getGlobal("alert")("PDF ID Copied!");
+          }
         }
-        return true;
-      })
-      .setProp("onActivate", (ev) => {
         return true;
       })
       .setProp(
@@ -214,10 +133,62 @@ export async function showTaskManager() {
     const refreshButton = win.document.querySelector(
       "#refresh",
     ) as HTMLButtonElement;
+    const copyPdfIdButton = win.document.querySelector(
+      "#copy-pdf-id",
+    ) as HTMLButtonElement;
+    const cancelButton = win.document.querySelector(
+      "#cancel",
+    ) as HTMLButtonElement;
+    const viewPdfButton = win.document.querySelector(
+      "#view-pdf",
+    ) as HTMLButtonElement;
+    viewPdfButton.addEventListener("click", (ev) => {
+      const tasks = getSelectedTasks();
+      if (tasks.length > 0) {
+        const task = tasks[0];
+        if (task.resultAttachmentId) {
+          const resultAttachment = Zotero.Items.get(task.resultAttachmentId);
+          if (resultAttachment) {
+            Zotero.Reader.open(resultAttachment.id);
+          }
+        } else {
+          ztoolkit.getGlobal("alert")("任务未完成");
+        }
+      } else {
+        ztoolkit.getGlobal("alert")("请选择一个任务");
+      }
+    });
+
     refreshButton.addEventListener("click", (ev) => {
       refresh();
     });
-
+    copyPdfIdButton.addEventListener("click", (ev) => {
+      const tasks = getSelectedTasks();
+      if (tasks.length > 0) {
+        const task = tasks[0];
+        if (task.pdfId) {
+          new ztoolkit.Clipboard().addText(task.pdfId, "text/unicode").copy();
+          ztoolkit.getGlobal("alert")("PDF ID Copied!");
+        }
+      } else {
+        ztoolkit.getGlobal("alert")("请选择一个任务");
+      }
+    });
+    cancelButton.addEventListener("click", (ev) => {
+      const tasks = getSelectedTasks();
+      if (tasks.length > 0) {
+        const task = tasks[0];
+        if (task.status === "queued") {
+          cancelTask(task);
+          refresh();
+          ztoolkit.getGlobal("alert")("取消任务成功");
+        } else {
+          ztoolkit.getGlobal("alert")("只能取消未开始的任务");
+        }
+      } else {
+        ztoolkit.getGlobal("alert")("请选择一个任务");
+      }
+    });
     setInterval(() => {
       refresh();
     }, 2000);
@@ -262,5 +233,29 @@ export function updateTaskInList(
   }
 
   // Call saveTranslationData after updating the task list
+  saveTranslationData();
+}
+
+function getSelectedTasks() {
+  const keys =
+    addon.data.task.tableHelper?.treeInstance.selection.selected?.keys() || [];
+  const datas = [];
+  for (const key of keys) {
+    const data = addon.data.task.translationTaskList[key];
+    datas.push(data);
+  }
+  return datas;
+}
+
+function cancelTask(task: TranslationTaskData) {
+  updateTaskInList(task.attachmentId, {
+    status: "canceled",
+  });
+  addon.data.task.translationGlobalQueue.splice(
+    addon.data.task.translationGlobalQueue.findIndex(
+      (t) => t.attachmentId === task.attachmentId,
+    ),
+    1,
+  );
   saveTranslationData();
 }

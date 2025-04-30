@@ -77,7 +77,9 @@ export function restoreUnfinishedTasks(): number {
     const unfinishedTasks = addon.data.task.translationTaskList.filter(
       (task: any) => {
         const status = task.status || "";
-        return status !== "success" && status !== "failed";
+        return (
+          status !== "success" && status !== "failed" && status !== "canceled"
+        );
       },
     );
 
@@ -143,7 +145,10 @@ export function saveTranslationData() {
     ) {
       addon.data.task.translationTaskList
         .filter(
-          (task: any) => task.status !== "success" && task.status !== "failed",
+          (task: any) =>
+            task.status !== "success" &&
+            task.status !== "failed" &&
+            task.status !== "canceled",
         )
         .forEach((task: TranslationTaskData) => setTask(task));
     }

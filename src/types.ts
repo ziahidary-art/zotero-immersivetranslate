@@ -3,7 +3,9 @@ export type Status =
   | "queued"
   | "translating"
   | "success"
-  | "failed";
+  | "failed"
+  | "canceled";
+
 export type Stage = "queued" | "processing" | "success" | "failed";
 
 export type TranslationTaskData = {
