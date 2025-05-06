@@ -1,4 +1,5 @@
 import { translateModels, translateModes } from "../../config";
+import { getString } from "../../utils/locale";
 import { getPref } from "../../utils/prefs";
 import { getLanguageOptions } from "../language";
 
@@ -21,7 +22,7 @@ export async function showConfirmationDialog(): Promise<{
     .addCell(0, 0, {
       tag: "h2",
       properties: {
-        innerHTML: "选项",
+        innerHTML: getString("confirm-options"),
       },
       styles: {
         width: "300px",
@@ -31,7 +32,10 @@ export async function showConfirmationDialog(): Promise<{
       tag: "label",
       namespace: "html",
       properties: {
-        innerHTML: "目标语言",
+        innerHTML: getString("confirm-target-language"),
+      },
+      styles: {
+        width: "200px",
       },
     })
     .addCell(
@@ -65,7 +69,10 @@ export async function showConfirmationDialog(): Promise<{
       tag: "label",
       namespace: "html",
       properties: {
-        innerHTML: "翻译模式",
+        innerHTML: getString("confirm-translate-mode"),
+      },
+      styles: {
+        width: "200px",
       },
     })
     .addCell(
@@ -83,7 +90,7 @@ export async function showConfirmationDialog(): Promise<{
             tag: "option",
             properties: {
               value: mode.value,
-              innerHTML: mode.label,
+              innerHTML: getString(mode.label),
             },
           }),
         ),
@@ -99,7 +106,10 @@ export async function showConfirmationDialog(): Promise<{
       tag: "label",
       namespace: "html",
       properties: {
-        innerHTML: "翻译模型",
+        innerHTML: getString("confirm-translate-model"),
+      },
+      styles: {
+        width: "200px",
       },
     })
     .addCell(
@@ -117,7 +127,7 @@ export async function showConfirmationDialog(): Promise<{
             tag: "option",
             properties: {
               value: model.value,
-              innerHTML: model.label,
+              innerHTML: getString(model.label),
             },
           }),
         ),
@@ -141,7 +151,7 @@ export async function showConfirmationDialog(): Promise<{
           "data-prop": "checked",
           type: "checkbox",
         },
-        properties: { label: "启用兼容性模式" },
+        properties: { label: getString("confirm-enable-compatibility") },
       },
       false,
     )
@@ -151,12 +161,16 @@ export async function showConfirmationDialog(): Promise<{
       attributes: {
         for: "enhanceCompatibility",
       },
-      properties: { innerHTML: "启用兼容性模式" },
+      properties: { innerHTML: getString("confirm-enable-compatibility") },
+      styles: {
+        width: "200px",
+      },
     })
-    .addButton("确认", "confirm")
-    .addButton("取消", "cancel")
+    .addButton(getString("confirm-yes"), "confirm")
+    .addButton(getString("confirm-cancel"), "cancel")
     .setDialogData(dialogData)
-    .open("BabelDOC 翻译确认");
+    .open(getString("confirm-title"));
+
   addon.data.dialog = dialogHelper;
   await dialogData.unloadLock.promise;
   addon.data.dialog = undefined;

@@ -1,0 +1,13 @@
+taskManager-title = BabelDOC Translation Tasks
+refresh = 
+    .label = Refresh
+    .tooltiptext = Refresh translation task list
+copy-pdf-id =
+    .label = Copy Task ID
+    .tooltiptext = Copy task ID for feedback or reporting issues
+cancel =
+    .label = Cancel
+    .tooltiptext = Cancel pending tasks
+view-pdf =
+    .label = View Translation Result
+    .tooltiptext = Open the translated PDF

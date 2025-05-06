@@ -17,3 +17,12 @@ translateModel-glm-4-plus = GLM-4-Plus
 translateModel-OpenAI = OpenAI
 translateModel-Gemini = Gemini
 translateModel-glm-4-flash = GLM-4-Flash
+
+confirm-title = BabelDOC Translate Confirm
+confirm-options = Options
+confirm-enable-compatibility = Enable automatic translation
+confirm-translate-model = Translation model
+confirm-translate-mode = Translation mode
+confirm-target-language = Target language
+confirm-yes = Confirm
+confirm-cancel = Cancel
