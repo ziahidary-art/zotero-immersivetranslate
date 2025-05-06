@@ -95,7 +95,7 @@
 
 可以在 [Issues](https://github.com/immersive-translate/zotero-babeldoc/issues) 中反馈问题。
 
-或者 [加入 BabelDoc 的内测群](https://immersivetranslate.com/zh-Hans/docs/communities/)，进行反馈。
+或者 [加入 BabelDOC 的内测群](https://immersivetranslate.com/zh-Hans/docs/communities/)，进行反馈。
 
 ## 贡献
 

@@ -1,8 +1,8 @@
 export function registerPrompt() {
   ztoolkit.Prompt.register([
     {
-      name: "Babel Doc Translate",
-      label: "Babel Doc Translate",
+      name: "BabelDOC Translate",
+      label: "BabelDOC Translate",
       callback(prompt) {
         ztoolkit.getGlobal("alert")("Command triggered!");
       },

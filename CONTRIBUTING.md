@@ -98,7 +98,7 @@ When adding or modifying user-facing text:
 
 ## Communication
 
-- For general discussion and feedback, join the [BabelDoc community](https://immersivetranslate.com/zh-Hans/docs/communities/).
+- For general discussion and feedback, join the [BabelDOC community](https://immersivetranslate.com/zh-Hans/docs/communities/).
 - For specific technical questions, you can open an issue on GitHub.
 
 Thank you for contributing to make Zotero BabelDOC better! 
