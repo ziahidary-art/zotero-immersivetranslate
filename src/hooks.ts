@@ -8,11 +8,6 @@ import { createZToolkit } from "./utils/ztoolkit";
 import { registerMenu, registerWindowMenu } from "./modules/menu";
 import { registerNotifier } from "./modules/notify";
 import {
-  registerPrompt,
-  registerAnonymousCommandExample,
-  registerConditionalCommandExample,
-} from "./modules/prompt";
-import {
   addTasksToQueue,
   startQueueProcessing,
 } from "./modules/translate/task";
@@ -88,12 +83,6 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
 
   registerWindowMenu();
 
-  registerPrompt();
-
-  registerAnonymousCommandExample(win);
-
-  registerConditionalCommandExample();
-
   await Zotero.Promise.delay(1000);
 
   popupWin.changeLine({
@@ -150,8 +139,6 @@ async function onPrefsEvent(type: string, data: { [key: string]: any }) {
 
 function onShortcuts(type: string) {}
 
-function onDialogEvents(type: string) {}
-
 function onTranslate() {
   addTasksToQueue();
 }
@@ -172,7 +159,6 @@ export default {
   onNotify,
   onPrefsEvent,
   onShortcuts,
-  onDialogEvents,
   onTranslate,
   onViewTranslationTasks,
 };
