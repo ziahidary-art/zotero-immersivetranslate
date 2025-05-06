@@ -201,8 +201,14 @@ export async function showTaskManager() {
 }
 
 async function updateTable() {
+  const keys =
+    addon.data.task.tableHelper?.treeInstance.selection.selected?.keys() || [];
+  let id = undefined;
+  for (const key of keys) {
+    id = key;
+  }
   return new Promise<void>((resolve) => {
-    addon.data.task.tableHelper?.render(undefined, (_: any) => {
+    addon.data.task.tableHelper?.render(id, (_: any) => {
       resolve();
     });
   });
