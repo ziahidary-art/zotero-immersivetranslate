@@ -26,3 +26,23 @@ confirm-translate-mode = 翻译模式
 confirm-target-language = 目标语言
 confirm-yes = 确认
 confirm-cancel = 取消
+
+task-no-pdf = 没有找到可以翻译的 PDF
+
+column-item = 条目
+column-attachment = 附件
+column-target-language = 目标语言
+column-translate-model = 翻译模型
+column-translate-mode = 翻译模式
+column-pdfId =  任务 ID
+column-status = 任务状态
+column-stage = 当前阶段
+column-progress = 翻译进度
+column-error = 错误信息
+column-resultAttachmentId = 结果附件 ID
+
+task-uncomplete = 任务未完成
+task-select-tip = 请选择一个任务
+task-copy-success = 复制任务 ID 成功！
+task-cancel-success = 取消任务成功
+task-cancel-tip = 只能取消未开始的任务

@@ -33,62 +33,56 @@ export async function showTaskManager() {
         columns: [
           {
             dataKey: "parentItemTitle",
-            label: "条目",
+            label: getString("column-item"),
             fixedWidth: false,
           },
           {
             dataKey: "attachmentFilename",
-            label: "附件",
+            label: getString("column-attachment"),
             fixedWidth: false,
           },
           {
             dataKey: "targetLanguage",
-            label: "目标语言",
+            label: getString("column-target-language"),
             fixedWidth: false,
           },
           {
             dataKey: "translateModel",
-            label: "翻译模型",
+            label: getString("column-translate-model"),
             fixedWidth: false,
           },
           {
             dataKey: "translateMode",
-            label: "翻译模式",
+            label: getString("column-translate-mode"),
             fixedWidth: false,
           },
           {
             dataKey: "pdfId",
-            label: "pdfId",
+            label: getString("column-pdfId"),
             fixedWidth: false,
           },
           {
             dataKey: "status",
-            label: "状态",
+            label: getString("column-status"),
             fixedWidth: false,
           },
           {
             dataKey: "stage",
-            label: "阶段",
+            label: getString("column-stage"),
             fixedWidth: false,
           },
           {
             dataKey: "progress",
-            label: "进度",
+            label: getString("column-progress"),
             fixedWidth: false,
           },
           {
             dataKey: "error",
-            label: "错误",
-            fixedWidth: false,
-          },
-          {
-            dataKey: "resultAttachmentId",
-            label: "结果附件ID",
+            label: getString("column-error"),
             fixedWidth: false,
           },
         ].map((column) =>
           Object.assign(column, {
-            // label: getString(column.label) || column.label,
             label: column.label,
           }),
         ),
@@ -103,14 +97,14 @@ export async function showTaskManager() {
         return {
           status: task.status || "",
           progress: `${task.progress || "0"}%`,
-          parentItemTitle: task.parentItemTitle || "",
+          parentItemTitle: task.parentItemTitle || "-",
           attachmentFilename: task.attachmentFilename || "",
           targetLanguage: task.targetLanguage || "",
           translateModel: task.translateModel || "",
           translateMode: task.translateMode || "",
           stage: task.stage || "",
-          pdfId: task.pdfId || "",
-          error: task.error || "",
+          pdfId: task.pdfId || "-",
+          error: task.error || "-",
           resultAttachmentId: task.resultAttachmentId?.toString() || "",
         };
       })
@@ -120,7 +114,7 @@ export async function showTaskManager() {
           const task = tasks[0];
           if (task.pdfId) {
             new ztoolkit.Clipboard().addText(task.pdfId, "text/unicode").copy();
-            ztoolkit.getGlobal("alert")("PDF ID Copied!");
+            ztoolkit.getGlobal("alert")(getString("task-copy-success"));
           }
         }
         return true;
@@ -153,10 +147,10 @@ export async function showTaskManager() {
             Zotero.Reader.open(resultAttachment.id);
           }
         } else {
-          ztoolkit.getGlobal("alert")("任务未完成");
+          ztoolkit.getGlobal("alert")(getString("task-uncomplete"));
         }
       } else {
-        ztoolkit.getGlobal("alert")("请选择一个任务");
+        ztoolkit.getGlobal("alert")(getString("task-select-tip"));
       }
     });
 
@@ -169,10 +163,10 @@ export async function showTaskManager() {
         const task = tasks[0];
         if (task.pdfId) {
           new ztoolkit.Clipboard().addText(task.pdfId, "text/unicode").copy();
-          ztoolkit.getGlobal("alert")("PDF ID Copied!");
+          ztoolkit.getGlobal("alert")(getString("task-copy-success"));
         }
       } else {
-        ztoolkit.getGlobal("alert")("请选择一个任务");
+        ztoolkit.getGlobal("alert")(getString("task-select-tip"));
       }
     });
     cancelButton.addEventListener("click", (ev) => {
@@ -182,12 +176,12 @@ export async function showTaskManager() {
         if (task.status === "queued") {
           cancelTask(task);
           refresh();
-          ztoolkit.getGlobal("alert")("取消任务成功");
+          ztoolkit.getGlobal("alert")(getString("task-cancel-success"));
         } else {
-          ztoolkit.getGlobal("alert")("只能取消未开始的任务");
+          ztoolkit.getGlobal("alert")(getString("task-cancel-tip"));
         }
       } else {
-        ztoolkit.getGlobal("alert")("请选择一个任务");
+        ztoolkit.getGlobal("alert")(getString("task-select-tip"));
       }
     });
     createWindowBoundInterval(
