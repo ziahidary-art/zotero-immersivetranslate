@@ -231,7 +231,7 @@ async function downloadTranslateResult({
       contentType: "application/pdf",
     });
 
-    attachment.setTags([ATTR_TAG]);
+    attachment.setTags([ATTR_TAG, pdfId]);
 
     ztoolkit.log(
       `Attachment created (ID: ${attachment.id}) for ${taskData.attachmentFilename}`,
