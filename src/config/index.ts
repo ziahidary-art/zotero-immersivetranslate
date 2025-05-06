@@ -1,3 +1,5 @@
+import { getString } from "../utils/locale";
+
 export const translateModes = [
   {
     label: "translateMode-dua",
@@ -35,3 +37,19 @@ export const translateModels = [
     value: "glm-4-flash",
   },
 ];
+
+export function getTranslateModelLabel(model: string) {
+  const label = translateModels.find((m) => m.value === model)?.label;
+  if (!label) {
+    return "";
+  }
+  return getString(label);
+}
+
+export function getTranslateModeLabel(mode: string) {
+  const label = translateModes.find((m) => m.value === mode)?.label;
+  if (!label) {
+    return "";
+  }
+  return getString(label);
+}

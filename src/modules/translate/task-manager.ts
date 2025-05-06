@@ -2,7 +2,10 @@ import { isWindowAlive } from "../../utils/window";
 import { config } from "../../../package.json";
 import { getString } from "../../utils/locale";
 import { saveTranslationData } from "./persistence";
-import { TranslationTaskData } from "../../types";
+import { Status, TranslationTaskData } from "../../types";
+import { getTranslateModeLabel, getTranslateModelLabel } from "../../config";
+import { Language } from "../language/types";
+import { nativeLangMap } from "../language";
 
 /**
  * 显示翻译任务列表的弹窗
@@ -95,13 +98,13 @@ export async function showTaskManager() {
       .setProp("getRowData", (index) => {
         const task = addon.data.task.translationTaskList[index];
         return {
-          status: task.status || "",
+          status: getStatusText(task.status),
           progress: `${task.progress || "0"}%`,
           parentItemTitle: task.parentItemTitle || "-",
           attachmentFilename: task.attachmentFilename || "",
-          targetLanguage: task.targetLanguage || "",
-          translateModel: task.translateModel || "",
-          translateMode: task.translateMode || "",
+          targetLanguage: getLanguageName(task.targetLanguage) || "",
+          translateModel: getTranslateModelLabel(task.translateModel) || "",
+          translateMode: getTranslateModeLabel(task.translateMode) || "",
           stage: task.stage || "",
           pdfId: task.pdfId || "-",
           error: task.error || "-",
@@ -216,7 +219,7 @@ async function refresh() {
 export function updateTaskInList(
   attachmentId: number,
   updates: {
-    status?: string;
+    status?: Status;
     stage?: string;
     pdfId?: string;
     progress?: number;
@@ -289,4 +292,23 @@ export function createWindowBoundInterval(
   );
 
   return intervalId;
+}
+
+function getStatusText(status?: string) {
+  const statusMap: Record<string, string> = {
+    queued: getString("task-status-queued"),
+    uploading: getString("task-status-uploading"),
+    translating: getString("task-status-translating"),
+    success: getString("task-status-success"),
+    failed: getString("task-status-failed"),
+    canceled: getString("task-status-canceled"),
+  };
+
+  if (!status) return "";
+
+  return statusMap[status];
+}
+
+function getLanguageName(language: Language) {
+  return nativeLangMap[language] || language;
 }

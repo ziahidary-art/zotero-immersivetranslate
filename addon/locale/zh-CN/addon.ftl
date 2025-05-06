@@ -46,3 +46,10 @@ task-select-tip = 请选择一个任务
 task-copy-success = 复制任务 ID 成功！
 task-cancel-success = 取消任务成功
 task-cancel-tip = 只能取消未开始的任务
+
+task-status-queued = 未开始
+task-status-uploading = 上传中
+task-status-translating = 翻译中
+task-status-success = 成功
+task-status-failed = 失败
+task-status-canceled = 已取消

@@ -45,3 +45,10 @@ task-select-tip = Please select a task
 task-copy-success = Task ID Copied!
 task-cancel-success = Task canceled successfully
 task-cancel-tip = Only unstarted tasks can be canceled
+
+task-status-queued = Pending start
+task-status-uploading = Uploading
+task-status-translating = Translating
+task-status-success = Success
+task-status-failed = Failed
+task-status-canceled = Canceled

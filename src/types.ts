@@ -1,3 +1,5 @@
+import { Language } from "./modules/language/types";
+
 export type Status =
   | "uploading"
   | "queued"
@@ -14,12 +16,12 @@ export type TranslationTaskData = {
   attachmentId: number;
   attachmentFilename: string;
   attachmentPath: string;
-  targetLanguage: string;
+  targetLanguage: Language;
   translateModel: string;
   translateMode: string;
   enhanceCompatibility: boolean;
   pdfId?: string;
-  status?: string;
+  status?: Status;
   stage?: string;
   progress?: number;
   error?: string;
