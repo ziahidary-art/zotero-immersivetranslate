@@ -3,6 +3,7 @@ import { config } from "../../../package.json";
 import { getString } from "../../utils/locale";
 import { saveTranslationData } from "./persistence";
 import { TranslationTaskData } from "../../types";
+
 /**
  * 显示翻译任务列表的弹窗
  */
@@ -189,9 +190,13 @@ export async function showTaskManager() {
         ztoolkit.getGlobal("alert")("请选择一个任务");
       }
     });
-    setInterval(() => {
-      refresh();
-    }, 2000);
+    createWindowBoundInterval(
+      () => {
+        refresh();
+      },
+      3000,
+      win,
+    );
   }
 }
 
@@ -258,4 +263,30 @@ function cancelTask(task: TranslationTaskData) {
     1,
   );
   saveTranslationData();
+}
+
+/**
+ * Creates a recurring interval that automatically cleans up when the window is closed
+ * @param callback Function to execute at each interval
+ * @param delay Time in milliseconds between executions
+ * @param window Window to attach the interval to
+ * @returns Interval ID that can be used with clearInterval if needed
+ */
+export function createWindowBoundInterval(
+  callback: () => void,
+  delay: number,
+  window: Window,
+): ReturnType<typeof setInterval> {
+  const intervalId = setInterval(callback, delay);
+
+  // Add unload listener to clean up the interval when the window closes
+  window.addEventListener(
+    "unload",
+    () => {
+      clearInterval(intervalId);
+    },
+    { once: true },
+  );
+
+  return intervalId;
 }
