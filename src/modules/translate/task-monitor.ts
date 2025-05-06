@@ -102,7 +102,7 @@ export const TranslationTaskMonitor = {
         );
         updateTaskInList(attachmentId, {
           status: "translating",
-          stage: "Downloading",
+          stage: "downloading",
           progress: 100,
         });
 
@@ -193,7 +193,7 @@ async function downloadTranslateResult({
     // Update the task in translationTaskList
     updateTaskInList(taskData.attachmentId, {
       status: "translating",
-      stage: "Downloading result",
+      stage: "downloading",
       progress: 100,
     });
 

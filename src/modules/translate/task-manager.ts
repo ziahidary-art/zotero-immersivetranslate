@@ -105,7 +105,7 @@ export async function showTaskManager() {
           targetLanguage: getLanguageName(task.targetLanguage) || "",
           translateModel: getTranslateModelLabel(task.translateModel) || "",
           translateMode: getTranslateModeLabel(task.translateMode) || "",
-          stage: task.stage || "",
+          stage: getStageText(task.stage) || "",
           pdfId: task.pdfId || "-",
           error: task.error || "-",
           resultAttachmentId: task.resultAttachmentId?.toString() || "",
@@ -307,6 +307,39 @@ function getStatusText(status?: string) {
   if (!status) return "";
 
   return statusMap[status];
+}
+
+function getStageText(stage?: string) {
+  if (!stage) return "";
+  const translationMap: { [key: string]: string } = {
+    queued: getString("task-stage-queued"),
+    uploading: getString("task-stage-uploading"),
+    downloading: getString("task-stage-downloading"),
+    completed: getString("task-stage-completed"),
+    "Parse PDF and Create Intermediate Representation": getString(
+      "task-stage-parse-pdf",
+    ),
+    DetectScannedFile: getString("task-stage-DetectScannedFile"),
+    "Parse Page Layout": getString("task-stage-ParseLayout"),
+    "Parse Paragraphs": getString("task-stage-ParseParagraphs"),
+    "Parse Formulas and Styles": getString("task-stage-ParseFormulasAndStyles"),
+    "Remove Char Descent": getString("task-stage-RemoveCharDescent"),
+    "Translate Paragraphs": getString("task-stage-TranslateParagraphs"),
+    Typesetting: getString("task-stage-Typesetting"),
+    "Add Fonts": getString("task-stage-AddFonts"),
+    "Generate drawing instructions": getString(
+      "task-stage-GenerateDrawingInstructions",
+    ),
+    "Subset font": getString("task-stage-SubsetFont"),
+    "Save PDF": getString("task-stage-SavePDF"),
+    "prepare file download": getString("task-stage-prepareFileDownload"),
+    "Prepare File Download": getString("task-stage-SavePDF"),
+    "Parse Table": getString("task-stage-ParseTable"),
+    "Waiting in line": getString("task-stage-WaitingInLine"),
+    "Create Task": getString("task-stage-CreateTask"),
+  };
+
+  return translationMap[stage] || stage;
 }
 
 function getLanguageName(language: Language) {

@@ -9,7 +9,7 @@ export async function translatePDF(
   // Update task status in taskList
   updateTaskInList(taskData.attachmentId, {
     status: "uploading",
-    stage: "Uploading PDF",
+    stage: "uploading",
     progress: 0,
   });
 
