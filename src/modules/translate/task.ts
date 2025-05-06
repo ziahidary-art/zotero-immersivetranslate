@@ -8,6 +8,18 @@ import { TranslationTaskMonitor } from "./task-monitor";
 
 const ATTR_TAG = "BabelDOC_translated";
 
+/**
+ * Check if attachment is already in the translation task list
+ */
+export function isAttachmentInTaskList(attachmentId: number): boolean {
+  return !!addon.data.task.translationTaskList?.find(
+    (task) =>
+      task.attachmentId === attachmentId &&
+      task.status !== "success" &&
+      task.status !== "failed",
+  );
+}
+
 export async function addTasksToQueue() {
   const tasksToQueue = await getTranslationTasks();
 
@@ -112,12 +124,7 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
         attachment.attachmentFilename || `Attachment ${attachmentId}`;
 
       // Check attachment is already in the translation task list?
-      const isInTaskList = addon.data.task.translationTaskList.find(
-        (task) =>
-          task.attachmentId === attachmentId &&
-          task.status !== "success" &&
-          task.status !== "failed",
-      );
+      const isInTaskList = isAttachmentInTaskList(attachmentId);
       // TODO 检查是否是已成功的翻译任务，给予提示
       // 1. 在 tasklist 中，并且状态是成功
       // 2. 有同名称的带 babeldoc tag 的翻译结果附件
