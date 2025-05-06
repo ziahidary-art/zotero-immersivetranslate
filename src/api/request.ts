@@ -3,8 +3,6 @@ import { getPref } from "../utils/prefs";
 const BASE_URL_TEST = "https://test-api2.immersivetranslate.com/zotero";
 const BASE_URL = "https://api2.immersivetranslate.com/zotero";
 
-const URL = BASE_URL_TEST;
-
 export async function request({
   url,
   method = "GET",
@@ -21,6 +19,7 @@ export async function request({
   responseType?: "json" | "text" | "blob" | "arraybuffer";
 }) {
   try {
+    const URL = addon.data.env === "development" ? BASE_URL_TEST : BASE_URL;
     const isCustomUrl = url.startsWith("http");
     const queryParams = new URLSearchParams(params);
     const urlWithParams = `${URL}${url}?${queryParams.toString()}`;
