@@ -89,7 +89,7 @@ function buildPrefsPane() {
             return {
               tag: "menuitem",
               attributes: {
-                label: item.label,
+                label: getString(item.label),
                 value: item.value,
               },
             };
@@ -127,7 +127,7 @@ function buildPrefsPane() {
             return {
               tag: "menuitem",
               attributes: {
-                label: item.label,
+                label: getString(item.label),
                 value: item.value,
               },
             };
@@ -151,16 +151,6 @@ function buildPrefsPane() {
 function bindPrefEvents() {
   addon.data
     .prefs!.window.document?.querySelector(
-      `#zotero-prefpane-${config.addonRef}-enable`,
-    )
-    ?.addEventListener("command", (e: Event) => {
-      ztoolkit.log(e);
-      const checked = (e.target as XUL.Checkbox).checked;
-      addon.data.prefs!.window.alert(checked ? "插件已启用" : "插件已禁用");
-    });
-
-  addon.data
-    .prefs!.window.document?.querySelector(
       `#zotero-prefpane-${config.addonRef}-authkey`,
     )
     ?.addEventListener("change", (e: Event) => {
@@ -176,10 +166,10 @@ function bindPrefEvents() {
       ztoolkit.log(e);
       try {
         const url = await addon.api.getPdfUploadUrl();
-        Zotero.getMainWindow().alert("测试成功");
+        Zotero.getMainWindow().alert(getString("pref-test-success"));
       } catch (error) {
         ztoolkit.log(error);
-        Zotero.getMainWindow().alert("测试失败，请检查授权码是否正确");
+        Zotero.getMainWindow().alert(getString("pref-test-failed"));
       }
     });
 }

@@ -1,33 +1,37 @@
 export const translateModes = [
   {
-    label: "双语模式",
+    label: "translateMode-dua",
     value: "dual",
   },
   {
-    label: "仅译文",
+    label: "translateMode-translation",
     value: "translation",
   },
 ];
 
 export const translateModels = [
   {
-    label: "DeepSeek",
+    label: "translateModel-deepseek",
     value: "deepseek",
   },
   {
-    label: "glm-4-plus",
+    label: "translateModel-doubao",
+    value: "doubao",
+  },
+  {
+    label: "translateModel-glm-4-plus",
     value: "glm-4-plus",
   },
   {
-    label: "OpenAI",
+    label: "translateModel-OpenAI",
     value: "gpt-4.1-mini-2025-04-14",
   },
   {
-    label: "Gemini",
+    label: "translateModel-Gemini",
     value: "gemini-2.0-flash-001",
   },
   {
-    label: "glm-4-flash",
+    label: "translateModel-glm-4-flash",
     value: "glm-4-flash",
   },
 ];

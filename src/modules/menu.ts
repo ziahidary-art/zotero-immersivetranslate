@@ -24,7 +24,7 @@ export function registerWindowMenu() {
   ztoolkit.Menu.register("menuView", {
     id: "zotero-menuview-babeldoc-translate-menuitem",
     tag: "menuitem",
-    label: "查看翻译任务",
+    label: getString("menuView-tasks"),
     commandListener: () => addon.hooks.onViewTranslationTasks(),
   });
 }

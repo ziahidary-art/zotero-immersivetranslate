@@ -1,5 +1,5 @@
 item-section-babeldoc-info = 
-    .label = BabelDOC 信息
+    .label = BabelDOC Information
 item-section-babeldoc-info-tooltip =
-    .tooltiptext = BabelDOC 信息
-item-info-status = BabelDOC 翻译状态
+    .tooltiptext = BabelDOC Information
+item-info-status = BabelDOC Translation Status

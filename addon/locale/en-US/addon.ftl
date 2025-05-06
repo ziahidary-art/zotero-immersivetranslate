@@ -1,11 +1,19 @@
 startup-begin = Addon is loading
 startup-finish = Addon is ready
-menuitem-translate = 使用 BabeDoc 翻译
-menuitem-submenulabel = Addon Template
-menuitem-filemenulabel = Addon Template: File Menuitem
-prefs-title = Template
-prefs-table-title = Title
-prefs-table-detail = Detail
-tabpanel-lib-tab-label = Lib Tab
-tabpanel-reader-tab-label = Reader Tab
-item-filed-status = BabelDOC 翻译状态
+menuitem-translate = Translate with BabelDOC
+menuView-tasks = View BabelDOC translate tasks
+pref-test-success = Test Success
+pref-test-failed = Test failed, Please check your authkey
+
+prefs-title = Immersive Translate
+item-filed-status = BabelDOC Translation Status
+
+translateMode-dua = Bilingual mode
+translateMode-translation = Translation only
+
+translateModel-deepseek = DeepSeek
+translateModel-doubao = Doubao
+translateModel-glm-4-plus = GLM-4-Plus
+translateModel-OpenAI = OpenAI
+translateModel-Gemini = Gemini
+translateModel-glm-4-flash = GLM-4-Flash
