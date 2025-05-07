@@ -13,6 +13,7 @@ Thank you for your interest in contributing to the Zotero BabelDOC plugin! This 
 ### Setting Up the Development Environment
 
 1. Fork and clone the repository:
+
    ```
    git clone https://github.com/YOUR-USERNAME/zotero-babeldoc.git
    cd zotero-babeldoc
@@ -20,14 +21,14 @@ Thank you for your interest in contributing to the Zotero BabelDOC plugin! This 
 
 2. Copy the environment variable file. Modify the commands that starts your installation of the beta Zotero.
 
-    > Create a development profile (Optional)
-    > Start the beta Zotero with /path/to/zotero -p. Create a new profile and use it as your development profile. Do this only once.
+   > Create a development profile (Optional)
+   > Start the beta Zotero with /path/to/zotero -p. Create a new profile and use it as your development profile. Do this only once.
 
    ```
     cp .env.example .env
     vim .env
    ```
-   
+
    You may need to adjust the Zotero installation path in `package.json` if your Zotero is not installed in the default location.
 
 3. Install dependencies with `pnpm install`.
@@ -44,10 +45,13 @@ Thank you for your interest in contributing to the Zotero BabelDOC plugin! This 
 ## Submitting Contributions
 
 1. Create a new branch for your feature or bugfix:
+
    ```
    git checkout -b feature/your-feature-name
    ```
+
    or
+
    ```
    git checkout -b fix/issue-you-are-fixing
    ```
@@ -57,11 +61,13 @@ Thank you for your interest in contributing to the Zotero BabelDOC plugin! This 
 3. Test your changes thoroughly.
 
 4. Commit your changes with clear, descriptive commit messages:
+
    ```
    git commit -m "feat: description of the feature"
    ```
 
 5. Push your branch to your fork:
+
    ```
    git push origin feature/your-feature-name
    ```
@@ -101,4 +107,4 @@ When adding or modifying user-facing text:
 - For general discussion and feedback, join the [BabelDOC community](https://immersivetranslate.com/zh-Hans/docs/communities/).
 - For specific technical questions, you can open an issue on GitHub.
 
-Thank you for contributing to make Zotero BabelDOC better! 
+Thank you for contributing to make Zotero BabelDOC better!

@@ -3,7 +3,6 @@
 [![zotero target version](https://img.shields.io/badge/Zotero-7-green?style=flat-square&logo=zotero&logoColor=CC2936)](https://www.zotero.org)
 [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
 
-
 这是沉浸式翻译旗下的 BabelDOC Zotero 插件，用于翻译 Zotero 的文献。
 
 [BabelDOC 仓库地址](https://github.com/funstory-ai/BabelDOC)
@@ -63,7 +62,6 @@
 ### 查看翻译结果
 
 当翻译任务完成后，可以点击 `查看翻译结果` 按钮，直接用阅读器打开翻译后的 PDF。
-
 
 ## 翻译任务的恢复
 
