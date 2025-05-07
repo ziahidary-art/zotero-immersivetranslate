@@ -1,12 +1,12 @@
 startup-begin = Addon is loading
 startup-finish = Addon is ready
-menuitem-translate = Translate with BabelDOC
-menuView-tasks = View BabelDOC translate tasks
+menuitem-translate = Translate with ImmersiveTranslate
+menuView-tasks = View Immersive translate tasks
 pref-test-success = Test successfully
 pref-test-failed = Test failed, Please check your authkey
 
 prefs-title = Immersive Translate
-item-filed-status = BabelDOC Translation Status
+item-filed-status = Translation Status
 
 translateMode-all = Bilingual mode & Translation only
 translateMode-dua = Bilingual mode
@@ -19,7 +19,7 @@ translateModel-OpenAI = OpenAI
 translateModel-Gemini = Gemini
 translateModel-glm-4-flash = GLM-4-Flash
 
-confirm-title = BabelDOC Translate Confirm
+confirm-title = Translate Confirm
 confirm-options = Options
 confirm-enable-compatibility = Enable automatic translation
 confirm-enable-ocr-workaround = Enable OCR temporary solution

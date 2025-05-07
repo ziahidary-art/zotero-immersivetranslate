@@ -1,4 +1,4 @@
-taskManager-title = BabelDOC Translation Tasks
+taskManager-title = Immersive Translation Tasks
 refresh = 
     .label = Refresh
     .tooltiptext = Refresh translation task list

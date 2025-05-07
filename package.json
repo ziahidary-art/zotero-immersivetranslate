@@ -1,8 +1,8 @@
 {
-  "name": "zotero-babeldoc",
+  "name": "zotero-immersivetranslate",
   "type": "module",
   "version": "0.0.0",
-  "description": "Zotero BabelDOC plugin",
+  "description": "Zotero BabelDOC plugin, for Immersive Translate Pro members.",
   "keywords": [
     "zotero",
     "babeldoc",
@@ -11,21 +11,21 @@
     "translation"
   ],
   "config": {
-    "addonName": "BabelDOC",
-    "addonID": "babeldoc@immersivetranslate.com",
-    "addonRef": "babeldoc",
-    "addonInstance": "BabelDOC",
-    "prefsPrefix": "extensions.zotero.babeldoc"
+    "addonName": "Immersive Translate 沉浸式翻译",
+    "addonID": "zotero@immersivetranslate.com",
+    "addonRef": "immersivetranslate",
+    "addonInstance": "ImmersiveTranslate",
+    "prefsPrefix": "extensions.zotero.immersivetranslate"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/immersive-translate/zotero-babeldoc.git"
+    "url": "git+https://github.com/immersive-translate/zotero-immersivetranslate.git"
   },
   "author": "immersive-translate",
   "bugs": {
-    "url": "https://github.com/immersive-translate/zotero-babeldoc/issues"
+    "url": "https://github.com/immersive-translate/zotero-immersivetranslate/issues"
   },
-  "homepage": "https://github.com/immersive-translate/zotero-babeldoc#readme",
+  "homepage": "https://github.com/immersive-translate/zotero-immersivetranslate#readme",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "zotero-plugin serve",
