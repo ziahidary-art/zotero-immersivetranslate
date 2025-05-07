@@ -6,6 +6,7 @@ import { showConfirmationDialog } from "./confirm-dialog";
 import { translatePDF } from "./translate";
 import { TranslationTaskMonitor } from "./task-monitor";
 import { getString } from "../../utils/locale";
+import { Language } from "../language/types";
 
 const ATTR_TAG = "BabelDOC_translated";
 
@@ -31,7 +32,7 @@ export async function addTasksToQueue() {
   }
   const translateMode = getPref("translateMode");
   const translateModel = getPref("translateModel");
-  const targetLanguage = getPref("targetLanguage");
+  const targetLanguage = getPref("targetLanguage") as Language;
   const enhanceCompatibility = getPref("enhanceCompatibility");
   const confirmResult = await showConfirmationDialog();
   if (confirmResult.action === "cancel") {
@@ -143,7 +144,7 @@ async function getTranslationTasks(): Promise<TranslationTaskData[]> {
         const filePath = await attachment.getFilePathAsync();
         const translateMode = getPref("translateMode");
         const translateModel = getPref("translateModel");
-        const targetLanguage = getPref("targetLanguage");
+        const targetLanguage = getPref("targetLanguage") as Language;
         const enhanceCompatibility = getPref("enhanceCompatibility");
         if (filePath && attachmentFilename) {
           tasks.push({

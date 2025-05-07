@@ -2,11 +2,11 @@ import { translateModels, translateModes } from "../../config";
 import { getString } from "../../utils/locale";
 import { getPref } from "../../utils/prefs";
 import { getLanguageOptions } from "../language";
-
+import { Language } from "../language/types";
 export async function showConfirmationDialog(): Promise<{
   action: "confirm" | "cancel";
   data?: {
-    targetLanguage: string;
+    targetLanguage: Language;
     translateMode: string;
     translateModel: string;
     enhanceCompatibility: boolean;
@@ -179,7 +179,7 @@ export async function showConfirmationDialog(): Promise<{
       return {
         action: "confirm",
         data: dialogData as {
-          targetLanguage: string;
+          targetLanguage: Language;
           translateMode: string;
           translateModel: string;
           enhanceCompatibility: boolean;
