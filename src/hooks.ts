@@ -1,13 +1,23 @@
-import {
-  BasicExampleFactory,
-  HelperExampleFactory,
-  KeyExampleFactory,
-  PromptExampleFactory,
-  UIExampleFactory,
-} from "./modules/examples";
 import { getString, initLocale } from "./utils/locale";
-import { registerPrefsScripts } from "./modules/preferenceScript";
+import {
+  registerPrefs,
+  registerPrefsScripts,
+} from "./modules/preference-window";
+import { registerShortcuts } from "./modules/shortcuts";
 import { createZToolkit } from "./utils/ztoolkit";
+import { registerMenu, registerWindowMenu } from "./modules/menu";
+import { registerNotifier } from "./modules/notify";
+import {
+  addTasksToQueue,
+  startQueueProcessing,
+} from "./modules/translate/task";
+import {
+  loadSavedTranslationData,
+  restoreUnfinishedTasks,
+  saveTranslationData,
+} from "./modules/translate/persistence";
+import { showTaskManager } from "./modules/translate/task-manager";
+import { initTasks } from "./modules/translate/store";
 
 async function onStartup() {
   await Promise.all([
@@ -18,25 +28,29 @@ async function onStartup() {
 
   initLocale();
 
-  BasicExampleFactory.registerPrefs();
+  registerPrefs();
 
-  BasicExampleFactory.registerNotifier();
+  registerNotifier(["item", "file"]);
 
-  KeyExampleFactory.registerShortcuts();
+  registerShortcuts();
 
-  await UIExampleFactory.registerExtraColumn();
-
-  await UIExampleFactory.registerExtraColumnWithCustomCell();
-
-  UIExampleFactory.registerItemPaneCustomInfoRow();
-
-  UIExampleFactory.registerItemPaneSection();
-
-  UIExampleFactory.registerReaderItemPaneSection();
+  initTasks();
 
   await Promise.all(
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
   );
+
+  // 加载保存的翻译任务和队列数据
+  loadSavedTranslationData();
+
+  // 恢复未完成的翻译任务
+  const restoredCount = restoreUnfinishedTasks();
+  if (restoredCount > 0) {
+    ztoolkit.log(`已恢复${restoredCount}个未完成的翻译任务，准备重新处理`);
+
+    // 启动处理队列
+    startQueueProcessing();
+  }
 }
 
 async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
@@ -65,19 +79,9 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
     text: `[30%] ${getString("startup-begin")}`,
   });
 
-  UIExampleFactory.registerStyleSheet(win);
+  registerMenu();
 
-  UIExampleFactory.registerRightClickMenuItem();
-
-  UIExampleFactory.registerRightClickMenuPopup(win);
-
-  UIExampleFactory.registerWindowMenuWithSeparator();
-
-  PromptExampleFactory.registerNormalCommandExample();
-
-  PromptExampleFactory.registerAnonymousCommandExample(win);
-
-  PromptExampleFactory.registerConditionalCommandExample();
+  registerWindowMenu();
 
   await Zotero.Promise.delay(1000);
 
@@ -86,18 +90,17 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
     text: `[100%] ${getString("startup-finish")}`,
   });
   popupWin.startCloseTimer(5000);
-
-  addon.hooks.onDialogEvents("dialogExample");
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
   ztoolkit.unregisterAll();
-  addon.data.dialog?.window?.close();
+  ztoolkit.Menu.unregisterAll();
 }
 
 function onShutdown(): void {
+  // 关闭前保存翻译数据
+  saveTranslationData();
   ztoolkit.unregisterAll();
-  addon.data.dialog?.window?.close();
   // Remove addon object
   addon.data.alive = false;
   // @ts-ignore - Plugin instance is not typed
@@ -106,7 +109,7 @@ function onShutdown(): void {
 
 /**
  * This function is just an example of dispatcher for Notify events.
- * Any operations should be placed in a function to keep this funcion clear.
+ * Any operations should be placed in a function to keep this function clear.
  */
 async function onNotify(
   event: string,
@@ -114,22 +117,13 @@ async function onNotify(
   ids: Array<string | number>,
   extraData: { [key: string]: any },
 ) {
-  // You can add your code to the corresponding notify type
   ztoolkit.log("notify", event, type, ids, extraData);
-  if (
-    event == "select" &&
-    type == "tab" &&
-    extraData[ids[0]].type == "reader"
-  ) {
-    BasicExampleFactory.exampleNotifierCallback();
-  } else {
-    return;
-  }
+  // TODO: add your code here
 }
 
 /**
  * This function is just an example of dispatcher for Preference UI events.
- * Any operations should be placed in a function to keep this funcion clear.
+ * Any operations should be placed in a function to keep this function clear.
  * @param type event type
  * @param data event data
  */
@@ -143,39 +137,14 @@ async function onPrefsEvent(type: string, data: { [key: string]: any }) {
   }
 }
 
-function onShortcuts(type: string) {
-  switch (type) {
-    case "larger":
-      KeyExampleFactory.exampleShortcutLargerCallback();
-      break;
-    case "smaller":
-      KeyExampleFactory.exampleShortcutSmallerCallback();
-      break;
-    default:
-      break;
-  }
+function onShortcuts(type: string) {}
+
+function onTranslate() {
+  addTasksToQueue();
 }
 
-function onDialogEvents(type: string) {
-  switch (type) {
-    case "dialogExample":
-      HelperExampleFactory.dialogExample();
-      break;
-    case "clipboardExample":
-      HelperExampleFactory.clipboardExample();
-      break;
-    case "filePickerExample":
-      HelperExampleFactory.filePickerExample();
-      break;
-    case "progressWindowExample":
-      HelperExampleFactory.progressWindowExample();
-      break;
-    case "vtableExample":
-      HelperExampleFactory.vtableExample();
-      break;
-    default:
-      break;
-  }
+function onViewTranslationTasks() {
+  showTaskManager();
 }
 
 // Add your hooks here. For element click, etc.
@@ -190,5 +159,6 @@ export default {
   onNotify,
   onPrefsEvent,
   onShortcuts,
-  onDialogEvents,
+  onTranslate,
+  onViewTranslationTasks,
 };

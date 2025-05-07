@@ -1,0 +1,13 @@
+taskManager-title = BabelDOC 翻译任务
+refresh = 
+    .label = 刷新
+    .tooltiptext = 刷新翻译任务列表
+copy-pdf-id =
+    .label = 复制任务 ID
+    .tooltiptext = 复制任务 ID，反馈问题
+cancel =
+    .label = 取消
+    .tooltiptext = 取消未开始的任务
+view-pdf =
+    .label = 查看翻译结果
+    .tooltiptext = 打开翻译完成的 PDF

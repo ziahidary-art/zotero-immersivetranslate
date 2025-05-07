@@ -3,13 +3,14 @@ import pkg from "./package.json";
 
 export default defineConfig({
   source: ["src", "addon"],
-  dist: ".scaffold/build",
+  dist: "dist",
   name: pkg.config.addonName,
   id: pkg.config.addonID,
   namespace: pkg.config.addonRef,
   updateURL: `https://github.com/{{owner}}/{{repo}}/releases/download/release/${
     pkg.version.includes("-") ? "update-beta.json" : "update.json"
   }`,
+  xpiName: pkg.config.addonName,
   xpiDownloadLink:
     "https://github.com/{{owner}}/{{repo}}/releases/download/v{{version}}/{{xpiName}}.xpi",
 
@@ -34,7 +35,7 @@ export default defineConfig({
         },
         bundle: true,
         target: "firefox115",
-        outfile: `.scaffold/build/addon/content/scripts/${pkg.config.addonRef}.js`,
+        outfile: `dist/addon/content/scripts/${pkg.config.addonRef}.js`,
       },
     ],
   },

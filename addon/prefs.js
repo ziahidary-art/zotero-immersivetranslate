@@ -1,3 +1,7 @@
 /* eslint-disable no-undef */
-pref("enable", true);
-pref("input", "This is input");
+pref("authkey", "");
+pref("targetLanguage", "zh-CN");
+pref("translateMode", "dual");
+pref("translateModel", "deepseek");
+pref("enhanceCompatibility", false);
+pref("autoTranslate", false);

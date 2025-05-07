@@ -11,8 +11,8 @@
     "translation"
   ],
   "config": {
-    "addonName": "Zotero BabelDOC plugin",
-    "addonID": "babeldoc@immersive-translate",
+    "addonName": "BabelDOC",
+    "addonID": "babeldoc@immersivetranslate.com",
     "addonRef": "babeldoc",
     "addonInstance": "BabelDOC",
     "prefsPrefix": "extensions.zotero.babeldoc"
@@ -30,6 +30,7 @@
   "scripts": {
     "start": "zotero-plugin serve",
     "build": "zotero-plugin build && tsc --noEmit",
+    "build:dev": "zotero-plugin build --dev && tsc --noEmit",
     "lint:check": "prettier --check . && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
     "release": "zotero-plugin release",

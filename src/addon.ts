@@ -1,7 +1,14 @@
 import { config } from "../package.json";
-import { ColumnOptions, DialogHelper } from "zotero-plugin-toolkit";
+import {
+  DialogHelper,
+  VirtualizedTableHelper,
+  LargePrefHelper,
+} from "zotero-plugin-toolkit";
+import {} from "zotero-plugin-toolkit";
 import hooks from "./hooks";
 import { createZToolkit } from "./utils/ztoolkit";
+import api from "./api";
+import type { TranslationTaskData } from "./types";
 
 class Addon {
   public data: {
@@ -15,15 +22,21 @@ class Addon {
     };
     prefs?: {
       window: Window;
-      columns: Array<ColumnOptions>;
-      rows: Array<{ [dataKey: string]: string }>;
     };
     dialog?: DialogHelper;
+    task: {
+      data?: LargePrefHelper;
+      window?: Window;
+      tableHelper?: VirtualizedTableHelper;
+      translationGlobalQueue: TranslationTaskData[];
+      translationTaskList: TranslationTaskData[];
+      isQueueProcessing: boolean;
+    };
   };
   // Lifecycle hooks
   public hooks: typeof hooks;
   // APIs
-  public api: object;
+  public api: typeof api;
 
   constructor() {
     this.data = {
@@ -31,9 +44,16 @@ class Addon {
       config,
       env: __env__,
       ztoolkit: createZToolkit(),
+      task: {
+        window: undefined,
+        tableHelper: undefined,
+        translationGlobalQueue: [],
+        translationTaskList: [],
+        isQueueProcessing: false,
+      },
     };
     this.hooks = hooks;
-    this.api = {};
+    this.api = api;
   }
 }
 
