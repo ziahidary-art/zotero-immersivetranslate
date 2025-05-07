@@ -15,7 +15,8 @@
     "addonID": "zotero@immersivetranslate.com",
     "addonRef": "immersivetranslate",
     "addonInstance": "ImmersiveTranslate",
-    "prefsPrefix": "extensions.zotero.immersivetranslate"
+    "prefsPrefix": "extensions.zotero.immersivetranslate",
+    "xpiName": "immersive-translate"
   },
   "repository": {
     "type": "git",

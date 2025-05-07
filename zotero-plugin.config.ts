@@ -10,7 +10,7 @@ export default defineConfig({
   updateURL: `https://github.com/{{owner}}/{{repo}}/releases/download/release/${
     pkg.version.includes("-") ? "update-beta.json" : "update.json"
   }`,
-  xpiName: pkg.config.addonName,
+  xpiName: pkg.config.xpiName,
   xpiDownloadLink:
     "https://github.com/{{owner}}/{{repo}}/releases/download/v{{version}}/{{xpiName}}.xpi",
 
