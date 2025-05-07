@@ -21,21 +21,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ^7.0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "pnpm"
 
       - name: Install deps
-        run: npm install
+        run: pnpm install
 
       - name: Build
         run: |
-          npm run build
+          pnpm build
 
       - name: Release to GitHub
         run: |
-          npm run release
+          pnpm release
           sleep 1s
 
       - name: Notify release
