@@ -1,11 +1,9 @@
-# Zotero BabelDOC plugin
+# Zotero Immersive Translate plugin
 
 [![zotero target version](https://img.shields.io/badge/Zotero-7-green?style=flat-square&logo=zotero&logoColor=CC2936)](https://www.zotero.org)
 [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
 
-这是沉浸式翻译旗下的 BabelDOC Zotero 插件，用于翻译 Zotero 的文献。
-
-[BabelDOC 仓库地址](https://github.com/funstory-ai/BabelDOC)
+这是沉浸式翻译的 Zotero 插件，使用 [BabelDOC](https://github.com/funstory-ai/BabelDOC) 翻译 Zotero 的 PDF 文献。
 
 [在网页中使用 BabelDOC](https://app.immersivetranslate.com/babel-doc/)
 
@@ -33,7 +31,7 @@
 
 4. 在设置页面配置目标语言、翻译模型、翻译模式等等。
 
-5. 在 Zotero 的文献管理页面，右键文件，出现右键菜单，选择 `使用 BabelDOC 翻译`
+5. 在 Zotero 的文献管理页面，右键文件，出现右键菜单，选择 `使用沉浸式翻译`
 
 ![Translate](./screenshots/right_menu.png)
 
@@ -87,11 +85,11 @@
 
 ## 不小心关闭了任务管理窗口，怎么办？
 
-可以在 Zotero 的 `查看` 菜单下，点击 `查看 BabelDOC 翻译任务`，打开任务管理窗口。
+可以在 Zotero 的 `查看` 菜单下，点击 `查看沉浸式翻译任务`，打开任务管理窗口。
 
 ## 反馈
 
-可以在 [Issues](https://github.com/immersive-translate/zotero-babeldoc/issues) 中反馈问题。
+可以在 [Issues](https://github.com/immersive-translate/zotero-immersivetranslate/issues) 中反馈问题。
 
 或者 [加入 BabelDOC 的内测群](https://immersivetranslate.com/zh-Hans/docs/communities/)，进行反馈。
 

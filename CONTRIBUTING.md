@@ -92,7 +92,7 @@ When adding or modifying user-facing text:
 
 ## Reporting Issues
 
-- Use the [GitHub Issues](https://github.com/immersive-translate/zotero-babeldoc/issues) page to report bugs or suggest features.
+- Use the [GitHub Issues](https://github.com/immersive-translate/zotero-immersivetranslate/issues) page to report bugs or suggest features.
 - Before creating a new issue, please check if a similar issue already exists.
 - Provide detailed information about the issue, including:
   - Steps to reproduce
