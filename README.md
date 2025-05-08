@@ -13,11 +13,11 @@
 
 ## 下载
 
-[在 Releases 页面下载](https://github.com/immersive-translate/zotero-babeldoc/releases)
+[在 Releases 页面下载](https://github.com/immersive-translate/zotero-immersivetranslate/releases)
 
 ## 使用
 
-1. 安装插件，在[ Releases ](https://github.com/immersive-translate/zotero-babeldoc/releases)页面下载最新的`.xpi`文件，在 Zotero 的插件管理页面安装并启用
+1. 安装插件，在[ Releases ](https://github.com/immersive-translate/zotero-immersivetranslate/releases)页面下载最新的`.xpi`文件，在 Zotero 的插件管理页面安装并启用
 
 ![Install](https://s.immersivetranslate.com/assets/r2-uploads/zotero_plugin_immersive_translate_babeldoc_20250507-daw1aSQgtbU9D3NZ.gif)
 

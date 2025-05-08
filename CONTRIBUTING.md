@@ -15,8 +15,8 @@ Thank you for your interest in contributing to the Zotero BabelDOC plugin! This 
 1. Fork and clone the repository:
 
    ```
-   git clone https://github.com/YOUR-USERNAME/zotero-babeldoc.git
-   cd zotero-babeldoc
+   git clone https://github.com/YOUR-USERNAME/zotero-immersivetranslate.git
+   cd zotero-immersivetranslate
    ```
 
 2. Copy the environment variable file. Modify the commands that starts your installation of the beta Zotero.
