@@ -1,20 +1,8 @@
 import { Language } from "./types";
-import {
-  langMap,
-  languages,
-  nativeLangMap,
-  zhCNLangMap,
-  zhTWLangMap,
-} from "./config";
-
-export const getAllLanguages: () => Language[] = () => {
-  return languages;
-};
+import { langMap, nativeLangMap, zhCNLangMap, zhTWLangMap } from "./config";
 
 export const getLanguages: () => Language[] = () => {
-  return languages.filter((lang) => {
-    return lang !== "auto";
-  });
+  return Object.keys(langMap) as Language[];
 };
 
 export const getLanguageOptions: (interfaceLanguage: Language) => {
@@ -24,65 +12,29 @@ export const getLanguageOptions: (interfaceLanguage: Language) => {
   return getLanguages().map((lang) => {
     return {
       value: lang,
-      label: getLanguageName(lang, interfaceLanguage, false, false),
+      label: getLanguageName(lang, interfaceLanguage),
     };
   });
 };
 
-export const getLanguageName: (
-  lang: Language,
-  interfaceLanguage: Language,
-  useOriginal?: boolean,
-  useInterfaceLanguage?: boolean,
-) => string = (lang, interfaceLanguage, useOriginal, useInterfaceLanguage) => {
+export function getLanguageName(lang: Language, interfaceLanguage: Language) {
   const nativeLang = nativeLangMap[lang] || lang;
   const fallbackLang = langMap[lang] || lang;
   const zhLang = zhCNLangMap[lang];
   const zhTWLang = zhTWLangMap[lang];
-  const internalNames = {
+  const internalNames: Record<string, string> = {
     "zh-CN": zhLang,
     "zh-TW": zhTWLang,
     en: fallbackLang,
   };
 
-  if (useOriginal) {
-    if (
-      // @ts-ignore: it's ok
-      internalNames[lang]
-    ) {
-      // @ts-ignore: it's ok
-      return internalNames[lang];
-    }
-    return fallbackLang;
+  if (lang === interfaceLanguage) {
+    return nativeLang;
   }
 
-  const isShowNativeLang =
-    lang !== interfaceLanguage && nativeLang !== "All Languages";
-  if (
-    // @ts-ignore: it's ok
-    internalNames[interfaceLanguage]
-  ) {
-    // @ts-ignore: it's ok
-    const locale = internalNames[interfaceLanguage];
-    if (useInterfaceLanguage) {
-      return locale;
-    }
+  const locale = internalNames[interfaceLanguage] ?? fallbackLang;
 
-    if (lang === "auto") {
-      return locale;
-    } else if (lang === "placeholder") {
-      return locale;
-    }
-    return isShowNativeLang ? `${locale} (${nativeLang})` : `${locale}`;
-  } else {
-    return isShowNativeLang ? `${fallbackLang} (${nativeLang})` : fallbackLang;
-  }
-};
+  return `${locale} (${nativeLang})`;
+}
 
-export {
-  langMap,
-  languages,
-  nativeLangMap,
-  zhCNLangMap,
-  zhTWLangMap,
-} from "./config";
+export { langMap, nativeLangMap, zhCNLangMap, zhTWLangMap } from "./config";

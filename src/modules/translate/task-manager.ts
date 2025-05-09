@@ -5,7 +5,7 @@ import { saveTranslationData } from "./persistence";
 import { Status, TranslationTaskData } from "../../types";
 import { getTranslateModeLabel, getTranslateModelLabel } from "../../config";
 import { Language } from "../language/types";
-import { nativeLangMap } from "../language";
+import { getLanguageName } from "../language";
 import { showDialog } from "../../utils/dialog";
 
 /**
@@ -103,7 +103,9 @@ export async function showTaskManager() {
           progress: `${task.progress || "0"}%`,
           parentItemTitle: task.parentItemTitle || "-",
           attachmentFilename: task.attachmentFilename || "",
-          targetLanguage: getLanguageName(task.targetLanguage) || "",
+          targetLanguage:
+            getLanguageName(task.targetLanguage, Zotero.locale as Language) ||
+            "",
           translateModel: getTranslateModelLabel(task.translateModel) || "",
           translateMode: getTranslateModeLabel(task.translateMode) || "",
           stage: getStageText(task.stage) || "",
@@ -362,8 +364,4 @@ function getStageText(stage?: string) {
   };
 
   return translationMap[stage] || stage;
-}
-
-function getLanguageName(language: Language) {
-  return nativeLangMap[language] || language;
 }

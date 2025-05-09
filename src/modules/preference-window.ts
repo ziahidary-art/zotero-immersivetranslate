@@ -49,12 +49,7 @@ function buildPrefsPane() {
         {
           tag: "menupopup",
           children: getLanguages().map((lang) => {
-            const nativeLang = getLanguageName(
-              lang,
-              Zotero.locale as Language,
-              false,
-              false,
-            );
+            const nativeLang = getLanguageName(lang, Zotero.locale as Language);
             return {
               tag: "menuitem",
               attributes: {
