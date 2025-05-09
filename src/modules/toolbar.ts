@@ -5,7 +5,7 @@ import { showTaskManager } from "./translate/task-manager";
 export function registerToolbar() {
   const ui = new UITool();
   const document = ztoolkit.getGlobal("document");
-  const toolbarIcon = `chrome://${addon.data.config.addonRef}/content/icons/favicon@16x16.png`;
+  const toolbarIcon = `chrome://${addon.data.config.addonRef}/content/icons/icon.svg`;
   const ariaBtn = ui.createElement(document, "toolbarbutton", {
     id: "zotero-tb-imt",
     removeIfExists: true,
