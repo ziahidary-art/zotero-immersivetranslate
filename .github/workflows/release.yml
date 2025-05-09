@@ -42,7 +42,12 @@ jobs:
           NEW_GA_MEASUREMENT_ID: ${{ secrets.NEW_GA_MEASUREMENT_ID }}
           NEW_GA_API_SECRET: ${{ secrets.NEW_GA_API_SECRET }}
         run: |
-          OLD_GA_MEASUREMENT_ID="${{ env.OLD_GA_MEASUREMENT_ID }}" OLD_GA_API_SECRET="${{ env.OLD_GA_API_SECRET }}"  NEW_GA_MEASUREMENT_ID="${{ env.NEW_GA_MEASUREMENT_ID }}"  NEW_GA_API_SECRET="${{ env.NEW_GA_API_SECRET }}"  pnpm build
+          echo "OLD_GA_MEASUREMENT_ID=$OLD_GA_MEASUREMENT_ID" > .env
+          echo "OLD_GA_API_SECRET=$OLD_GA_API_SECRET" >> .env
+          echo "NEW_GA_MEASUREMENT_ID=$NEW_GA_MEASUREMENT_ID" >> .env
+          echo "NEW_GA_API_SECRET=$NEW_GA_API_SECRET" >> .env
+          pnpm build
+          rm .env
 
       - name: Release to GitHub
         run: |
