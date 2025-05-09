@@ -68,12 +68,7 @@ jobs:
           NEW_GA_MEASUREMENT_ID: ${{ secrets.NEW_GA_MEASUREMENT_ID }}
           NEW_GA_API_SECRET: ${{ secrets.NEW_GA_API_SECRET }}
         run: |
-          export OLD_GA_MEASUREMENT_ID="$OLD_GA_MEASUREMENT_ID"
-          export OLD_GA_API_SECRET="$OLD_GA_API_SECRET"
-          export NEW_GA_MEASUREMENT_ID="$NEW_GA_MEASUREMENT_ID"
-          export NEW_GA_API_SECRET="$NEW_GA_API_SECRET"
-          
-          pnpm build
+          OLD_GA_MEASUREMENT_ID="$OLD_GA_MEASUREMENT_ID" OLD_GA_API_SECRET="$OLD_GA_API_SECRET" NEW_GA_MEASUREMENT_ID="$NEW_GA_MEASUREMENT_ID" NEW_GA_API_SECRET="$NEW_GA_API_SECRET" pnpm build
 
       - name: Upload build result
         uses: actions/upload-artifact@v4
