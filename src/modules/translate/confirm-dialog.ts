@@ -2,7 +2,7 @@ import { translateModels, translateModes } from "../../config";
 import { getString } from "../../utils/locale";
 import { getPref, setPref } from "../../utils/prefs";
 import { getLanguageOptions } from "../language";
-import { Language } from "../language/types";
+import type { Language } from "../language/types";
 
 export async function showConfirmationDialog(): Promise<{
   action: "confirm" | "cancel";
@@ -21,6 +21,7 @@ export async function showConfirmationDialog(): Promise<{
     enhanceCompatibility: getPref("enhanceCompatibility"),
     ocrWorkaround: getPref("ocrWorkaround"),
   };
+  const currentTargetLang = getPref("targetLanguage") as Language;
   const dialogHelper = new ztoolkit.Dialog(11, 4)
     .addCell(0, 0, {
       tag: "h2",
@@ -51,7 +52,7 @@ export async function showConfirmationDialog(): Promise<{
           "data-bind": "targetLanguage",
           "data-prop": "value",
         },
-        children: getLanguageOptions().map(
+        children: getLanguageOptions(Zotero.locale as Language).map(
           (lang: { value: string; label: string }) => ({
             tag: "option",
             properties: {

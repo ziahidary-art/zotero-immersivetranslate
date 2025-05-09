@@ -2,8 +2,9 @@ import { config } from "../../package.json";
 import { getString } from "../utils/locale";
 import { getPref, setPref } from "../utils/prefs";
 import { showDialog } from "../utils/dialog";
-import { getLanguages, nativeLangMap } from "./language";
+import { getLanguages, getLanguageName } from "./language";
 import { translateModes, translateModels } from "../config";
+import type { Language } from "./language/types";
 
 export function registerPrefs() {
   Zotero.PreferencePanes.register({
@@ -48,7 +49,12 @@ function buildPrefsPane() {
         {
           tag: "menupopup",
           children: getLanguages().map((lang) => {
-            const nativeLang = nativeLangMap[lang];
+            const nativeLang = getLanguageName(
+              lang,
+              Zotero.locale as Language,
+              false,
+              false,
+            );
             return {
               tag: "menuitem",
               attributes: {

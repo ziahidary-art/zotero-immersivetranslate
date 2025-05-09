@@ -17,14 +17,14 @@ export const getLanguages: () => Language[] = () => {
   });
 };
 
-export const getLanguageOptions: () => {
+export const getLanguageOptions: (interfaceLanguage: Language) => {
   value: string;
   label: string;
-}[] = () => {
+}[] = (interfaceLanguage) => {
   return getLanguages().map((lang) => {
     return {
       value: lang,
-      label: nativeLangMap[lang] || lang,
+      label: getLanguageName(lang, interfaceLanguage, false, false),
     };
   });
 };
