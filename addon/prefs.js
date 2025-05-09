@@ -7,3 +7,4 @@ pref("enhanceCompatibility", false);
 pref("autoTranslate", false);
 pref("autoOpenPDF", true);
 pref("ocrWorkaround", false);
+pref("fakeUserId", "");

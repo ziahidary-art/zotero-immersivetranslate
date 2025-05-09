@@ -15,6 +15,7 @@ declare namespace _ZoteroTypes {
       "autoTranslate": boolean;
       "autoOpenPDF": boolean;
       "ocrWorkaround": boolean;
+      "fakeUserId": string;
     };
   }
 }

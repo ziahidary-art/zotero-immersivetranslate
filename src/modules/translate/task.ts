@@ -8,6 +8,7 @@ import { TranslationTaskMonitor } from "./task-monitor";
 import { getString } from "../../utils/locale";
 import { showDialog } from "../../utils/dialog";
 import { Language } from "../language/types";
+import { report } from "../../utils/report";
 
 const ATTR_TAG = "BabelDOC_translated";
 
@@ -43,6 +44,18 @@ export async function addTasksToQueue() {
     return;
   }
 
+  report("zotero_plugin_translate", [
+    {
+      name: "zotero_plugin_translate",
+      params: {
+        trigger: "right_menu",
+        translation_service:
+          confirmResult.data?.translateModel || translateModel,
+        translate_mode: confirmResult.data?.translateMode || translateMode,
+        target_language: confirmResult.data?.targetLanguage || targetLanguage,
+      },
+    },
+  ]);
   tasksToQueue.forEach((task) => {
     task.translateMode = confirmResult.data?.translateMode || translateMode;
     task.translateModel = confirmResult.data?.translateModel || translateModel;
