@@ -68,11 +68,10 @@ jobs:
           NEW_GA_MEASUREMENT_ID: ${{ secrets.NEW_GA_MEASUREMENT_ID }}
           NEW_GA_API_SECRET: ${{ secrets.NEW_GA_API_SECRET }}
         run: |
-          echo "Checking environment variables:"
-          echo "OLD_GA_MEASUREMENT_ID exists: $([ -n "$OLD_GA_MEASUREMENT_ID" ] && echo 'YES' || echo 'NO')"
-          echo "OLD_GA_API_SECRET exists: $([ -n "$OLD_GA_API_SECRET" ] && echo 'YES' || echo 'NO')"
-          echo "NEW_GA_MEASUREMENT_ID exists: $([ -n "$NEW_GA_MEASUREMENT_ID" ] && echo 'YES' || echo 'NO')"
-          echo "NEW_GA_API_SECRET exists: $([ -n "$NEW_GA_API_SECRET" ] && echo 'YES' || echo 'NO')"
+          export OLD_GA_MEASUREMENT_ID="$OLD_GA_MEASUREMENT_ID"
+          export OLD_GA_API_SECRET="$OLD_GA_API_SECRET"
+          export NEW_GA_MEASUREMENT_ID="$NEW_GA_MEASUREMENT_ID"
+          export NEW_GA_API_SECRET="$NEW_GA_API_SECRET"
           
           pnpm build
 
