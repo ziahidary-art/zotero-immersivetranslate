@@ -300,7 +300,10 @@ async function downloadAndProcessPdf({
 
   const attachment = await Zotero.Attachments.importFromFile({
     file: tempPath,
-    parentItemID: taskData.parentItemId || 0,
+    parentItemID: taskData.parentItemId || undefined,
+    collections: taskData.parentItemId
+      ? undefined
+      : Zotero.Items.get(taskData.attachmentId).getCollections(),
     libraryID: parentItem?.libraryID,
     title: fileName,
     contentType: "application/pdf",
