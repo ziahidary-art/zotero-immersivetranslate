@@ -57,7 +57,7 @@ async function onStartup() {
 async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
   // Create ztoolkit for every window
   addon.data.ztoolkit = createZToolkit();
-
+  ztoolkit.basicOptions.log.disableConsole = false;
   // @ts-ignore This is a moz feature
   win.MozXULElement.insertFTLIfNeeded(
     `${addon.data.config.addonRef}-mainWindow.ftl`,

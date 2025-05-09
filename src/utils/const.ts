@@ -11,6 +11,10 @@ export const BASE_URL = `https://api2.${HOST_NAME}/zotero`;
 export const SELF_SERVICE_COLLECT_URL = `https://analytics.${HOST_NAME}/collect`;
 
 export function getGMurls() {
+  ztoolkit.log("OLD_GA_MEASUREMENT_ID: ", OLD_GA_MEASUREMENT_ID);
+  ztoolkit.log("OLD_GA_API_SECRET: ", OLD_GA_API_SECRET);
+  ztoolkit.log("NEW_GA_MEASUREMENT_ID: ", NEW_GA_MEASUREMENT_ID);
+  ztoolkit.log("NEW_GA_API_SECRET: ", NEW_GA_API_SECRET);
   if (!NEW_GA_MEASUREMENT_ID || NEW_GA_MEASUREMENT_ID === "undefined") {
     ztoolkit.log("Warning: env not inject success!");
     return [];
