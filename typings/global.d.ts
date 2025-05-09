@@ -16,3 +16,7 @@ declare const rootURI: string;
 declare const addon: import("../src/addon").default;
 
 declare const __env__: "production" | "development";
+declare const __NEW_GA_MEASUREMENT_ID__: string;
+declare const __NEW_GA_API_SECRET__: string;
+declare const __OLD_GA_MEASUREMENT_ID__: string;
+declare const __OLD_GA_API_SECRET__: string;
