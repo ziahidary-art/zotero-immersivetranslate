@@ -1,7 +1,5 @@
 import { getPref } from "../utils/prefs";
-
-const BASE_URL_TEST = "https://test-api2.immersivetranslate.com/zotero";
-const BASE_URL = "https://api2.immersivetranslate.com/zotero";
+import { BASE_URL_TEST, BASE_URL } from "../utils/const";
 
 export async function request({
   url,
@@ -10,6 +8,7 @@ export async function request({
   params = {},
   headers = {},
   responseType = "json",
+  fullFillonError = false,
 }: {
   url: string;
   method?: string;
@@ -17,6 +16,7 @@ export async function request({
   params?: any;
   headers?: any;
   responseType?: "json" | "text" | "blob" | "arraybuffer";
+  fullFillonError?: boolean | number[];
 }) {
   try {
     const URL = addon.data.env === "development" ? BASE_URL_TEST : BASE_URL;
@@ -44,11 +44,17 @@ export async function request({
       if (res.response.code === 0) {
         return res.response.data;
       } else {
+        if (fullFillonError) {
+          return res.response;
+        }
         handleError(new Error(res.response.message || res.response.error));
       }
     }
     return res.response;
   } catch (error: any) {
+    if (fullFillonError) {
+      return error;
+    }
     if (error?.xmlhttp?.response) {
       handleError(new Error(error.xmlhttp.response.error));
     } else {
