@@ -5,6 +5,10 @@
 
 这是沉浸式翻译的 Zotero 插件，使用 [BabelDOC](https://github.com/funstory-ai/BabelDOC) 翻译 Zotero 的 PDF 文献。
 
+> [!NOTE]
+> 本插件基于 Zotero 7 开发，不兼容 Zotero 6，请升级至最新版本。
+
+
 [在网页中使用 BabelDOC](https://app.immersivetranslate.com/babel-doc/)
 
 ## 预览
