@@ -8,7 +8,6 @@
 > [!NOTE]
 > 本插件基于 Zotero 7 开发，不兼容 Zotero 6，请升级至最新版本。
 
-
 [在网页中使用 BabelDOC](https://app.immersivetranslate.com/babel-doc/)
 
 ## 预览
