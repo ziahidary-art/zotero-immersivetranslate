@@ -1,7 +1,7 @@
 startup-begin = Addon is loading
 startup-finish = Addon is ready
-menuitem-translate = Translate with ImmersiveTranslate
-menuView-tasks = View Immersive translate tasks
+menuitem-translate = Translate with ImmersiveTranslate(Shift+A)
+menuView-tasks = View Immersive translate tasks(Shift+T)
 pref-test-success = Test successfully
 pref-test-failed = Test failed
 pref-test-failed-description = Please check your authkey

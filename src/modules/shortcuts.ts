@@ -2,15 +2,11 @@ const concatKey = Zotero.isMac ? "Meta" : "Control";
 
 export function registerShortcuts() {
   ztoolkit.Keyboard.register((ev, data) => {
-    if (data.type === "keydown") {
-      if (ev.key === concatKey) {
-        ztoolkit.log("keydown", ev.key);
-      }
+    if (ev.shiftKey && ev.key === "A") {
+      addon.hooks.onShortcuts("translate");
     }
-    if (data.type === "keyup") {
-      if (ev.key === concatKey) {
-        ztoolkit.log("keyup", ev.key);
-      }
+    if (ev.shiftKey && ev.key === "T") {
+      addon.hooks.onShortcuts("showTaskManager");
     }
   });
 }

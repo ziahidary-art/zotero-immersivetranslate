@@ -1,7 +1,7 @@
 startup-begin = 插件加载中
 startup-finish = 插件已就绪
-menuitem-translate = 使用沉浸式翻译
-menuView-tasks = 查看沉浸式翻译任务
+menuitem-translate = 使用沉浸式翻译(Shift+A)
+menuView-tasks = 查看沉浸式翻译任务(Shift+T)
 pref-test-success = 测试成功
 pref-test-failed = 测试失败
 pref-test-failed-description = 请检查授权码是否正确

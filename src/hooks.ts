@@ -140,7 +140,18 @@ async function onPrefsEvent(type: string, data: { [key: string]: any }) {
   }
 }
 
-function onShortcuts(type: string) {}
+function onShortcuts(type: string) {
+  switch (type) {
+    case "translate":
+      addTasksToQueue();
+      break;
+    case "showTaskManager":
+      showTaskManager();
+      break;
+    default:
+      break;
+  }
+}
 
 function onTranslate() {
   addTasksToQueue();
