@@ -22,9 +22,19 @@ export async function request({
     const URL = addon.data.env === "development" ? BASE_URL_TEST : BASE_URL;
     const isCustomUrl = url.startsWith("http");
     const queryParams = new URLSearchParams(params);
-    const urlWithParams = `${URL}${url}?${queryParams.toString()}`;
-    const _url = isCustomUrl ? url : urlWithParams;
-    const res = await Zotero.HTTP.request(method, _url, {
+
+    // For GET requests, always append params to URL. For other methods, only if not custom URL
+    let _url;
+    if (method === "GET" || !isCustomUrl) {
+      _url = isCustomUrl
+        ? `${url}${params && Object.keys(params).length > 0 ? `?${queryParams.toString()}` : ""}`
+        : `${URL}${url}?${queryParams.toString()}`;
+    } else {
+      _url = isCustomUrl ? url : `${URL}${url}`;
+    }
+
+    const requestOptions = {
+      method,
       headers: {
         ...(isCustomUrl
           ? {}
@@ -34,32 +44,48 @@ export async function request({
             }),
         ...headers,
       },
-      body: isCustomUrl ? body : JSON.stringify(body, null, 2),
-      responseType,
-    });
-    if (responseType === "arraybuffer") {
-      return res.response;
+      ...(method !== "GET" &&
+        method !== "HEAD" && {
+          body: isCustomUrl ? body : JSON.stringify(body, null, 2),
+        }),
+    };
+
+    const response = await fetch(_url, requestOptions);
+    let data;
+
+    if (responseType === "json") {
+      data = await response.json();
+    } else if (responseType === "text") {
+      data = await response.text();
+    } else if (responseType === "blob") {
+      data = await response.blob();
+    } else if (responseType === "arraybuffer") {
+      data = await response.arrayBuffer();
+      return data;
     }
-    if (res.response) {
-      if (res.response.code === 0) {
-        return res.response.data;
+
+    if (data && typeof data === "object") {
+      if ("code" in data && data.code === 0) {
+        return "data" in data ? data.data : data;
       } else {
         if (fullFillOnError) {
-          return res.response;
+          return data;
         }
-        handleError(new Error(res.response.message || res.response.error));
+        const errorMessage =
+          "message" in data
+            ? String(data.message)
+            : "error" in data
+              ? String(data.error)
+              : "Unknown error";
+        handleError(new Error(errorMessage));
       }
     }
-    return res.response;
+    return data;
   } catch (error: any) {
     if (fullFillOnError) {
       return error;
     }
-    if (error?.xmlhttp?.response) {
-      handleError(new Error(error.xmlhttp.response.error));
-    } else {
-      handleError(error);
-    }
+    handleError(error);
   }
 }
 

@@ -40,6 +40,7 @@ export function uploadPdf(data: UploadPdfRequest) {
     url: data.uploadUrl,
     method: "PUT",
     body: data.file,
+    responseType: "arraybuffer",
     headers: {
       "Content-Type": "application/pdf",
     },
