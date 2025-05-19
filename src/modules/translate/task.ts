@@ -25,6 +25,23 @@ export function isAttachmentInTaskList(attachmentId: number): boolean {
 }
 
 export async function addTasksToQueue() {
+  const authkey = getPref("authkey");
+  if (!authkey) {
+    showDialog({
+      title: getString("pref-test-failed-description"),
+    });
+    return;
+  }
+  const result = await addon.api.checkAuthKey({
+    apiKey: authkey,
+  });
+  if (!result) {
+    showDialog({
+      title: getString("pref-test-failed-description"),
+    });
+    return;
+  }
+
   const tasksToQueue = await getTranslationTasks();
 
   if (tasksToQueue.length === 0) {

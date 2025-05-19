@@ -4,7 +4,6 @@ export function checkAuthKey(params: { apiKey: string }): Promise<boolean> {
   return request({
     url: `/check-key`,
     params,
-    retryDelay: 1000,
   });
 }
 
