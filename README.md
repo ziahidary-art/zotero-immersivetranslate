@@ -97,9 +97,9 @@
 
 ## 反馈
 
-可以在 [Issues](https://github.com/immersive-translate/zotero-immersivetranslate/issues) 中反馈问题。
+如果是插件功能问题，可以在 [Issues](https://github.com/immersive-translate/zotero-immersivetranslate/issues) 中反馈。
 
-或者 [加入 BabelDOC 的内测群](https://immersivetranslate.com/zh-Hans/docs/communities/)，进行反馈。
+如果是翻译结果问题，可以 [加入 BabelDOC 的内测群](https://immersivetranslate.com/zh-Hans/docs/communities/)，发生任务 ID 进行反馈。
 
 ## 贡献
 
