@@ -105,7 +105,7 @@ export async function request({
       const response = await fetch(_url, requestOptions);
 
       if (!response.ok) {
-        let errorMessage = `HTTP error ${response.status}: ${response.statusText}`;
+        const errorMessage = `HTTP error ${response.status}: ${response.statusText}`;
         lastError = new Error(errorMessage);
 
         // Try to parse response body for more detailed error information
