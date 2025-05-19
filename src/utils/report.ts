@@ -22,7 +22,7 @@ export async function report(key: string, events: EventInterface[]) {
         responseType: "text",
         url: url,
         method: "POST",
-        fullFillonError: true,
+        fullFillOnError: true,
         body: JSON.stringify({
           client_id: fakeUserId,
           user_id: fakeUserId,
@@ -51,7 +51,7 @@ function reportToSelfService(fakeUserId: string, events: EventInterface[]) {
         url: SELF_SERVICE_COLLECT_URL,
         method: "POST",
         responseType: "text",
-        fullFillonError: true,
+        fullFillOnError: true,
         body: JSON.stringify({
           nonce: nonce,
           subject: "user_behaviour",

@@ -8,7 +8,7 @@ export async function request({
   params = {},
   headers = {},
   responseType = "json",
-  fullFillonError = false,
+  fullFillOnError = false,
 }: {
   url: string;
   method?: string;
@@ -16,7 +16,7 @@ export async function request({
   params?: any;
   headers?: any;
   responseType?: "json" | "text" | "blob" | "arraybuffer";
-  fullFillonError?: boolean | number[];
+  fullFillOnError?: boolean | number[];
 }) {
   try {
     const URL = addon.data.env === "development" ? BASE_URL_TEST : BASE_URL;
@@ -44,7 +44,7 @@ export async function request({
       if (res.response.code === 0) {
         return res.response.data;
       } else {
-        if (fullFillonError) {
+        if (fullFillOnError) {
           return res.response;
         }
         handleError(new Error(res.response.message || res.response.error));
@@ -52,7 +52,7 @@ export async function request({
     }
     return res.response;
   } catch (error: any) {
-    if (fullFillonError) {
+    if (fullFillOnError) {
       return error;
     }
     if (error?.xmlhttp?.response) {
