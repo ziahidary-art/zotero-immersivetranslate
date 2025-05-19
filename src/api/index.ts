@@ -4,6 +4,7 @@ export function checkAuthKey(params: { apiKey: string }): Promise<boolean> {
   return request({
     url: `/check-key`,
     params,
+    retryDelay: 1000,
   });
 }
 
@@ -27,6 +28,7 @@ export type UploadUrlResponse = {
 export function getPdfUploadUrl(): Promise<UploadUrlResponse> {
   return request({
     url: `/pdf-upload-url`,
+    retries: 3,
   });
 }
 
@@ -41,6 +43,7 @@ export function uploadPdf(data: UploadPdfRequest) {
     method: "PUT",
     body: data.file,
     responseType: "arraybuffer",
+    retries: 3,
     headers: {
       "Content-Type": "application/pdf",
     },
@@ -51,6 +54,7 @@ export function downloadPdf(url: string) {
   return request({
     url,
     method: "GET",
+    retries: 3,
     responseType: "arraybuffer",
   });
 }
@@ -77,6 +81,7 @@ export function createTranslateTask(
     url: "/backend-babel-pdf",
     method: "POST",
     body: data,
+    retries: 3,
   });
 }
 
@@ -110,6 +115,7 @@ export function getTranslateStatus(
 ): Promise<GetTranslateStatusResponse> {
   return request({
     url: `/pdf/${data.pdfId}/process`,
+    retries: 10,
   });
 }
 
@@ -129,6 +135,7 @@ export function getTranslatePdfResult(
 ): Promise<GetTranslatePdfResultResponse> {
   return request({
     url: `/pdf/${data.pdfId}/temp-url`,
+    retries: 3,
   });
 }
 

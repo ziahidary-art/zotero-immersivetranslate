@@ -260,6 +260,7 @@ async function processNextItem() {
     );
     updateTaskInList(taskData.attachmentId, {
       status: "failed",
+      error: error.message || error,
     });
   } finally {
     Zotero.Promise.delay(0).then(processNextItem);
