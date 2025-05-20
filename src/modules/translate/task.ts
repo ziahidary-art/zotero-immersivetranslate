@@ -261,6 +261,9 @@ async function processNextItem() {
       ztoolkit.log(
         `恢复已有pdfId(${taskData.pdfId})的任务: ${taskData.attachmentFilename}，直接进入监控阶段`,
       );
+      updateTaskInList(taskData.attachmentId, {
+        status: "translating",
+      });
       // 直接启动监控任务
       TranslationTaskMonitor.addTask(taskData.pdfId, taskData, parentItem);
     } else {

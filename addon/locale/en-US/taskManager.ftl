@@ -11,3 +11,6 @@ cancel =
 view-pdf =
     .label = View Translation Result
     .tooltiptext = Open the translated PDF
+retry =
+    .label = Retry
+    .tooltiptext = Retry when failed

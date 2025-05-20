@@ -78,3 +78,6 @@ task-stage-WaitingInLine = Queuing
 task-stage-CreateTask = Creating task
 task-stage-downloading = Downloading
 task-stage-completed = Translate completed
+
+task-retry-success = Task retry queued successfully
+task-retry-tip = Only failed tasks can be retried

@@ -7,6 +7,7 @@ import { getTranslateModeLabel, getTranslateModelLabel } from "../../config";
 import { Language } from "../language/types";
 import { getLanguageName } from "../language";
 import { showDialog } from "../../utils/dialog";
+import { startQueueProcessing } from "./task";
 
 /**
  * 显示翻译任务列表的弹窗
@@ -145,6 +146,9 @@ export async function showTaskManager() {
     const viewPdfButton = win.document.querySelector(
       "#view-pdf",
     ) as HTMLButtonElement;
+    const retryButton = win.document.querySelector(
+      "#retry",
+    ) as HTMLButtonElement;
     viewPdfButton.addEventListener("click", (ev) => {
       const tasks = getSelectedTasks();
       if (tasks.length > 0) {
@@ -157,6 +161,43 @@ export async function showTaskManager() {
         } else {
           showDialog({
             title: getString("task-uncomplete"),
+          });
+        }
+      } else {
+        showDialog({
+          title: getString("task-select-tip"),
+        });
+      }
+    });
+
+    retryButton.addEventListener("click", (ev) => {
+      const tasks = getSelectedTasks();
+      if (tasks.length > 0) {
+        const task = tasks[0];
+        if (task.status === "failed") {
+          // Update task status to queued
+          updateTaskInList(task.attachmentId, {
+            error: "",
+          });
+
+          // Add back to the global queue if not already there
+          if (
+            !addon.data.task.translationGlobalQueue.some(
+              (t) => t.attachmentId === task.attachmentId,
+            )
+          ) {
+            addon.data.task.translationGlobalQueue.unshift(task);
+          }
+
+          startQueueProcessing();
+          refresh();
+
+          showDialog({
+            title: getString("task-retry-success"),
+          });
+        } else {
+          showDialog({
+            title: getString("task-retry-tip"),
           });
         }
       } else {
@@ -210,7 +251,7 @@ export async function showTaskManager() {
       () => {
         refresh();
       },
-      3000,
+      500,
       win,
     );
   }

@@ -11,3 +11,6 @@ cancel =
 view-pdf =
     .label = 查看翻译结果
     .tooltiptext = 打开翻译完成的 PDF
+retry =
+    .label = 重试
+    .tooltiptext = 失败后重试

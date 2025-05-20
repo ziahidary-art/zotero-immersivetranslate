@@ -79,3 +79,6 @@ task-stage-WaitingInLine = 正在排队
 task-stage-CreateTask = 正在创建任务
 task-stage-downloading = 下载中
 task-stage-completed = 翻译完成
+
+task-retry-success = 重试任务已成功加入队列
+task-retry-tip = 只能重试失败的任务
