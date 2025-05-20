@@ -1,4 +1,6 @@
 export const HOST_NAME = "immersivetranslate.com";
+export const APP_SITE_URL = "https://app.immersivetranslate.com";
+export const TEST_APP_SITE_URL = "https://test-app.immersivetranslate.com";
 
 const OLD_GA_MEASUREMENT_ID = __OLD_GA_MEASUREMENT_ID__ || "";
 const OLD_GA_API_SECRET = __OLD_GA_API_SECRET__ || "";

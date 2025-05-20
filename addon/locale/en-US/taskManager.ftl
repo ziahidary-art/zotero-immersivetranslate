@@ -14,3 +14,6 @@ view-pdf =
 retry =
     .label = Retry
     .tooltiptext = Retry when failed
+feedback =
+    .label = Issue Feedback
+    .tooltiptext = Feedback current task issue

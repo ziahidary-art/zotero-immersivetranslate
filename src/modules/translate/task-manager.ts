@@ -8,6 +8,7 @@ import { Language } from "../language/types";
 import { getLanguageName } from "../language";
 import { showDialog } from "../../utils/dialog";
 import { startQueueProcessing } from "./task";
+import { APP_SITE_URL, TEST_APP_SITE_URL } from "../../utils/const";
 
 /**
  * 显示翻译任务列表的弹窗
@@ -149,6 +150,9 @@ export async function showTaskManager() {
     const retryButton = win.document.querySelector(
       "#retry",
     ) as HTMLButtonElement;
+    const feedbackButton = win.document.querySelector(
+      "#feedback",
+    ) as HTMLButtonElement;
     viewPdfButton.addEventListener("click", (ev) => {
       const tasks = getSelectedTasks();
       if (tasks.length > 0) {
@@ -199,6 +203,26 @@ export async function showTaskManager() {
           showDialog({
             title: getString("task-retry-tip"),
           });
+        }
+      } else {
+        showDialog({
+          title: getString("task-select-tip"),
+        });
+      }
+    });
+
+    feedbackButton.addEventListener("click", (ev) => {
+      const tasks = getSelectedTasks();
+      if (tasks.length > 0) {
+        const task = tasks[0];
+        if (task.pdfId && task.status !== "translating") {
+          const APP_URL =
+            addon.data.env === "development" ? TEST_APP_SITE_URL : APP_SITE_URL;
+          Zotero.launchURL(`${APP_URL}/babel-doc/${task.pdfId}?from=zotero`);
+        } else {
+          Zotero.launchURL(
+            `https://github.com/immersive-translate/zotero-immersivetranslate?tab=readme-ov-file#%E5%8F%8D%E9%A6%88`,
+          );
         }
       } else {
         showDialog({

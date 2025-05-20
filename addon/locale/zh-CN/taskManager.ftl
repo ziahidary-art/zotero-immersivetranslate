@@ -14,3 +14,6 @@ view-pdf =
 retry =
     .label = 重试
     .tooltiptext = 失败后重试
+feedback =
+    .label = 问题反馈
+    .tooltiptext = 反馈当前任务的问题
