@@ -14,6 +14,7 @@ pref-target-language = 目标语言
 pref-test-button = 测试
 pref-enable-autoOpenPDF =
     .label = 自动打开翻译后的 PDF
+pref-enable-autoTranslate-description = 启用后将会自动翻译新添加的 PDF 文件，无法解析为条目的 PDF 文件暂不支持自动翻译
 
 pref-imt-site = 在沉浸式翻译官网个人主页获取授权码
 

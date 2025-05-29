@@ -11,6 +11,7 @@ import { registerNotifier } from "./modules/notify";
 import {
   addTasksToQueue,
   startQueueProcessing,
+  shouldSkipAttachment,
 } from "./modules/translate/task";
 import {
   loadSavedTranslationData,
@@ -19,6 +20,7 @@ import {
 } from "./modules/translate/persistence";
 import { showTaskManager } from "./modules/translate/task-manager";
 import { initTasks } from "./modules/translate/store";
+import { getPref } from "./utils/prefs";
 
 async function onStartup() {
   await Promise.all([
@@ -121,7 +123,52 @@ async function onNotify(
   extraData: { [key: string]: any },
 ) {
   ztoolkit.log("notify", event, type, ids, extraData);
-  // TODO: add your code here
+  const isAutoTranslateEnabled = getPref("autoTranslate");
+  ztoolkit.log("isAutoTranslateEnabled", isAutoTranslateEnabled);
+  if (!isAutoTranslateEnabled) {
+    return;
+  }
+  if (event === "add" && type === "item") {
+    const newIds = [];
+    for (const id of ids) {
+      const item = Zotero.Items.get(id);
+      const isPDFAttachment = item.isPDFAttachment();
+
+      if (item.isRegularItem()) {
+        // ✅ 情况①：解析成功，生成新条目（主条目）
+        ztoolkit.log("【情况①】创建了主条目:", item.getField("title"));
+        newIds.push(item.id);
+      } else if (isPDFAttachment) {
+        const parentID = item.parentID;
+        ztoolkit.log("item.attachmentFilename", item.attachmentFilename);
+        const shouldSkip = shouldSkipAttachment(item);
+        if (shouldSkip) {
+          ztoolkit.log("【情况④】跳过翻译结果附件:", item.attachmentFilename);
+          continue;
+        }
+        if (parentID) {
+          // 📎 情况③：添加到已有条目下的附件
+          ztoolkit.log(
+            "【情况③】添加附件到已有条目:",
+            item.attachmentFilename,
+            "，父项ID:",
+            parentID,
+          );
+          //
+          newIds.push(item.id);
+        } else {
+          // ❌ 情况②：无法识别，仅上传为独立附件
+          ztoolkit.log(
+            "【情况②】独立附件（无法识别的PDF）暂不支持:",
+            item.attachmentFilename,
+          );
+        }
+      }
+    }
+    if (newIds.length > 0) {
+      addTasksToQueue(newIds);
+    }
+  }
 }
 
 /**

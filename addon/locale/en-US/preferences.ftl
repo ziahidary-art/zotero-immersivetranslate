@@ -14,7 +14,7 @@ pref-target-language = Target language
 pref-test-button = Test
 pref-enable-autoOpenPDF =
     .label = Automatically open translated PDF
-
+pref-enable-autoTranslate-description = After enabling, newly added PDF files will be automatically translated. PDF files that cannot be parsed into Items are not currently supported for automatic translation.
 pref-imt-site = Get your authorization key from your personal page on Immersive Translate website
 
 pref-translate-settings = Translation
