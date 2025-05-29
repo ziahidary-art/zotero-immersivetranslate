@@ -8,3 +8,4 @@ pref("autoTranslate", false);
 pref("autoOpenPDF", true);
 pref("ocrWorkaround", false);
 pref("fakeUserId", "");
+pref("enableShortcuts", true);

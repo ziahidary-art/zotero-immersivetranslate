@@ -15,6 +15,11 @@ pref-test-button = 测试
 pref-enable-autoOpenPDF =
     .label = 自动打开翻译后的 PDF
 pref-enable-autoTranslate-description = 启用后将会自动翻译新添加的 PDF 文件，无法解析为条目的 PDF 文件暂不支持自动翻译
+pref-shortcuts-settings = 快捷键
+pref-enable-shortcuts =
+    .label = 启用快捷键
+pref-enable-shortcuts-description-1 = Shift + A 翻译所选条目
+pref-enable-shortcuts-description-2 = Shift + T 打开翻译任务管理器
 
 pref-imt-site = 在沉浸式翻译官网个人主页获取授权码
 

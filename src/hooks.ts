@@ -188,6 +188,9 @@ async function onPrefsEvent(type: string, data: { [key: string]: any }) {
 }
 
 function onShortcuts(type: string) {
+  if (!getPref("enableShortcuts")) {
+    return;
+  }
   switch (type) {
     case "translate":
       addTasksToQueue();

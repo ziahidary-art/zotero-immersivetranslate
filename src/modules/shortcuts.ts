@@ -1,5 +1,3 @@
-const concatKey = Zotero.isMac ? "Meta" : "Control";
-
 export function registerShortcuts() {
   ztoolkit.Keyboard.register((ev, data) => {
     if (ev.shiftKey && ev.key === "A") {

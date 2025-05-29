@@ -16,6 +16,7 @@ declare namespace _ZoteroTypes {
       "autoOpenPDF": boolean;
       "ocrWorkaround": boolean;
       "fakeUserId": string;
+      "enableShortcuts": boolean;
     };
   }
 }

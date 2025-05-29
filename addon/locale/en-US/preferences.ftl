@@ -16,6 +16,11 @@ pref-enable-autoOpenPDF =
     .label = Automatically open translated PDF
 pref-enable-autoTranslate-description = After enabling, newly added PDF files will be automatically translated. PDF files that cannot be parsed into Items are not currently supported for automatic translation.
 pref-imt-site = Get your authorization key from your personal page on Immersive Translate website
+pref-shortcuts-settings = Shortcuts
+pref-enable-shortcuts =
+    .label = Enable shortcuts
+pref-enable-shortcuts-description-1 = Translate selected items
+pref-enable-shortcuts-description-2 = Open task manager
 
 pref-translate-settings = Translation
 
