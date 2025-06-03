@@ -31,8 +31,10 @@ confirm-translate-mode = 翻译模式
 confirm-target-language = 目标语言
 confirm-yes = 确认
 confirm-cancel = 取消
+to-pro = 去开通会员
 
 task-no-pdf = 没有找到可以翻译的 PDF
+task-limit-tips = 非会员用户最多只能添加 1 个任务
 
 column-item = 条目
 column-attachment = 附件

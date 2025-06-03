@@ -6,9 +6,10 @@ import { showConfirmationDialog } from "./confirm-dialog";
 import { translatePDF } from "./translate";
 import { TranslationTaskMonitor } from "./task-monitor";
 import { getString } from "../../utils/locale";
-import { showDialog } from "../../utils/dialog";
+import { showDialog, showFreeUserDialog } from "../../utils/dialog";
 import { Language } from "../language/types";
 import { report } from "../../utils/report";
+import { isProUser } from "../../utils/user";
 
 const ATTR_TAG = "BabelDOC_translated";
 
@@ -22,6 +23,12 @@ export function isAttachmentInTaskList(attachmentId: number): boolean {
       task.status !== "success" &&
       task.status !== "failed",
   );
+}
+
+export function getPendingTasksCount() {
+  return addon.data.task.translationTaskList?.filter(
+    (task) => task.status !== "success" && task.status !== "failed",
+  ).length;
 }
 
 export async function addTasksToQueue(ids?: number[]) {
@@ -55,6 +62,15 @@ export async function addTasksToQueue(ids?: number[]) {
     });
     return;
   }
+
+  const pendingTasksCount = getPendingTasksCount();
+  if (!isProUser() && (pendingTasksCount >= 1 || tasksToQueue.length > 1)) {
+    showFreeUserDialog({
+      title: getString("task-limit-tips"),
+    });
+    return;
+  }
+
   const translateMode = getPref("translateMode");
   const translateModel = getPref("translateModel");
   const targetLanguage = getPref("targetLanguage") as Language;

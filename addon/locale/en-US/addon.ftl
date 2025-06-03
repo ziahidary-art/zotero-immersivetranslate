@@ -31,8 +31,10 @@ confirm-translate-mode = Translation mode
 confirm-target-language = Target language
 confirm-yes = Confirm
 confirm-cancel = Cancel
+to-pro = Upgrade to Pro
 
 task-no-pdf = No PDF found for translation
+task-limit-tips = Free users can only add 1 task
 
 column-item = Item
 column-attachment = Attachment

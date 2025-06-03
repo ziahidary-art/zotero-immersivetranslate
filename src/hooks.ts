@@ -21,6 +21,7 @@ import {
 import { showTaskManager } from "./modules/translate/task-manager";
 import { initTasks } from "./modules/translate/store";
 import { getPref } from "./utils/prefs";
+import { isProUser } from "./utils/user";
 
 async function onStartup() {
   await Promise.all([
@@ -123,6 +124,10 @@ async function onNotify(
   extraData: { [key: string]: any },
 ) {
   ztoolkit.log("notify", event, type, ids, extraData);
+  if (!isProUser()) {
+    ztoolkit.log("Free user not support auto translate");
+    return;
+  }
   const isAutoTranslateEnabled = getPref("autoTranslate");
   ztoolkit.log("isAutoTranslateEnabled", isAutoTranslateEnabled);
   if (!isAutoTranslateEnabled) {
