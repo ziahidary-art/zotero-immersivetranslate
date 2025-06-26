@@ -153,6 +153,15 @@ export async function showTaskManager() {
     const feedbackButton = win.document.querySelector(
       "#feedback",
     ) as HTMLButtonElement;
+    const clearButton = win.document.querySelector(
+      "#clearQueue",
+    ) as HTMLButtonElement;
+    clearButton.addEventListener("click", (ev) => {
+      addon.data.task.translationGlobalQueue = [];
+      addon.data.task.translationTaskList = [];
+      saveTranslationData();
+      refresh();
+    });
     viewPdfButton.addEventListener("click", (ev) => {
       const tasks = getSelectedTasks();
       if (tasks.length > 0) {

@@ -17,3 +17,6 @@ retry =
 feedback =
     .label = 问题反馈
     .tooltiptext = 反馈当前任务的问题
+clearQueue =
+    .label = 清空队列
+    .tooltiptext = 清空队列中的任务，注意这只是在 Zotero 插件中清除，实际可能还在翻译，可以在 BabelDOC 网页中查看

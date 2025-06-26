@@ -17,3 +17,6 @@ retry =
 feedback =
     .label = Issue Feedback
     .tooltiptext = Feedback current task issue
+clearQueue =
+    .label = Clear Queue
+    .tooltiptext = Clear all tasks in the queue
