@@ -12,13 +12,6 @@ var chromeHandle;
 function install(data, reason) {}
 
 async function startup({ id, version, resourceURI, rootURI }, reason) {
-  await Zotero.initializationPromise;
-
-  // String 'rootURI' introduced in Zotero 7
-  if (!rootURI) {
-    rootURI = resourceURI.spec;
-  }
-
   var aomStartup = Components.classes[
     "@mozilla.org/addons/addon-manager-startup;1"
   ].getService(Components.interfaces.amIAddonManagerStartup);
@@ -58,18 +51,7 @@ function shutdown({ id, version, resourceURI, rootURI }, reason) {
     return;
   }
 
-  if (typeof Zotero === "undefined") {
-    Zotero = Components.classes["@zotero.org/Zotero;1"].getService(
-      Components.interfaces.nsISupports,
-    ).wrappedJSObject;
-  }
   Zotero.__addonInstance__?.hooks.onShutdown();
-
-  Cc["@mozilla.org/intl/stringbundle;1"]
-    .getService(Components.interfaces.nsIStringBundleService)
-    .flushBundles();
-
-  Cu.unload(`${rootURI}/content/scripts/__addonRef__.js`);
 
   if (chromeHandle) {
     chromeHandle.destruct();

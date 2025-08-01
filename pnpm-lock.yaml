@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       zotero-plugin-toolkit:
-        specifier: ^5.0.0-0
-        version: 5.0.0-1(zotero-types@4.0.0-beta.10)
+        specifier: ^5.1.0-beta.4
+        version: 5.1.0-beta.4
     devDependencies:
       '@eslint/js':
         specifier: ^9.23.0
@@ -46,8 +46,8 @@ importers:
         specifier: ^0.4.1
         version: 0.4.2
       zotero-types:
-        specifier: ^4.0.0-beta.3
-        version: 4.0.0-beta.10
+        specifier: ^4.1.0-beta.1
+        version: 4.1.0-beta.1
 
 packages:
 
@@ -1278,14 +1278,12 @@ packages:
       conventional-changelog:
         optional: true
 
-  zotero-plugin-toolkit@5.0.0-1:
-    resolution: {integrity: sha512-FmlLF/LH+k392dIaFPlQAnxFbBxCN7fP8WSHVAJcfjeYwILQ+7jFFJhlJZcxLNBavhatkXQ7yoOPJrnDKLmkHw==}
+  zotero-plugin-toolkit@5.1.0-beta.4:
+    resolution: {integrity: sha512-ZlNW2fTA7Pavt7acFywBAoDSBJh3X9A04cFnozs8GFrS4azrdmSDtJny19V8XQIa1HP9vQ9vd94Ueau4EaWz6g==}
     engines: {node: '>=18'}
-    peerDependencies:
-      zotero-types: ^4.0.0-beta.4
 
-  zotero-types@4.0.0-beta.10:
-    resolution: {integrity: sha512-UlbNRfXhSMboregASU8FyfqD8CgkWtS/vMJGbhrFsdEsYgG3oWCp+HtEJPyiLAE6uPPB8V2adZCp4glKQ6WEtQ==}
+  zotero-types@4.1.0-beta.1:
+    resolution: {integrity: sha512-gFNxMx2qGYwl89VP3Noha882zf27YMaoTyUrCA9LIu90qhfim9SgJlZUzXDQd2gOlcWYvnv/2Bio0GWeEDfJPQ==}
 
 snapshots:
 
@@ -2494,11 +2492,9 @@ snapshots:
       - '@swc/helpers'
       - magicast
 
-  zotero-plugin-toolkit@5.0.0-1(zotero-types@4.0.0-beta.10):
-    dependencies:
-      zotero-types: 4.0.0-beta.10
+  zotero-plugin-toolkit@5.1.0-beta.4: {}
 
-  zotero-types@4.0.0-beta.10:
+  zotero-types@4.1.0-beta.1:
     dependencies:
       '@types/bluebird': 3.5.42
       '@types/react': 18.3.23
