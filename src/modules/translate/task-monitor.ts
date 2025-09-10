@@ -309,7 +309,7 @@ async function downloadAndProcessPdf({
     contentType: "application/pdf",
   });
 
-  attachment.setTags([ATTR_TAG, pdfId]);
+  attachment.setTags([ATTR_TAG]);
 
   ztoolkit.log(
     `Attachment created (ID: ${attachment.id}) for ${taskData.attachmentFilename} (${mode})`,
