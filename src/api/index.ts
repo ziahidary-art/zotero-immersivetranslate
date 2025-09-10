@@ -66,11 +66,26 @@ type CreateTranslateTaskRequest = {
     };
   };
   fileName: string;
+  // 目标语言
   targetLanguage: string;
+  // 翻译服务
   requestModel: string;
+  // 兼容模式
   enhance_compatibility: boolean;
-  turnstileResponse: string;
+  // OCR 解决方案
   OCRWorkaround: boolean;
+  // 是否
+  autoEnableOcrWorkAround: boolean;
+  // 自动提取术语
+  autoExtractGlossary: boolean;
+  // 禁用富文本翻译
+  disable_rich_text_translate: boolean;
+  // 字体
+  primaryFontFamily: string;
+  // 双语对照显示方式
+  dual_mode: string;
+  // 自定义系统提示词
+  customSystemPrompt: string | null;
 };
 
 export function createTranslateTask(

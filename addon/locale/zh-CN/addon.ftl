@@ -20,6 +20,17 @@ translateModel-OpenAI = OpenAI
 translateModel-Gemini = Gemini
 translateModel-glm-4-flash = 智谱 4 Flash
 
+auto = 自动
+ocr_workaround_enable = 开启
+ocr_workaround_disable = 关闭
+
+font_family_serif = 宋体
+font_family_sans-serif = 黑体
+font_family_script = 楷体
+
+dual_modl_lort = 左右对照：原文｜译文
+dual_modl_ltro = 左右对照：译文｜原文
+
 confirm-title = 翻译确认
 confirm-options = 选项
 confirm-enable-compatibility = 是否启用兼容模式

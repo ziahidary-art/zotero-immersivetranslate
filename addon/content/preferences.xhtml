@@ -46,7 +46,7 @@
       <!-- Replace -->
       <box id="__addonRef__-translate-mode-placeholder"></box>
     </hbox>
-    <vbox>
+    <vbox style="margin-top: 12px">
       <checkbox
         id="zotero-prefpane-__addonRef__-enable-auto-open-pdf"
         native="true"
@@ -54,30 +54,79 @@
         data-l10n-id="pref-enable-autoOpenPDF"
       />
     </vbox>
-    <vbox>
+  </groupbox>
+
+  <groupbox>
+    <label
+      ><html:h2 data-l10n-id="pref-translate-settings-advance"></html:h2
+    ></label>
+
+    <vbox style="margin-top: 12px">
+      <checkbox
+        id="zotero-prefpane-__addonRef__-enable-autoExtractGlossary"
+        native="true"
+        preference="autoExtractGlossary"
+        data-l10n-id="pref-enable-autoExtractGlossary"
+      />
+      <p data-l10n-id="pref-enable-autoExtractGlossary-description" />
+    </vbox>
+
+    <vbox style="margin-top: 12px">
+      <html:label
+        for="zotero-prefpane-__addonRef__-customSystemPrompt"
+        data-l10n-id="pref-customSystemPrompt"
+      ></html:label>
+      <html:textarea
+        id="zotero-prefpane-__addonRef__-customSystemPrompt"
+        preference="customSystemPrompt"
+        placeholder="You are a professional and reliable machine translation engine.
+        When translating, strictly follow the instructions below to ensure translation quality and preserve all formatting, tags, and placeholders:"
+        rows="10"
+        cols="50"
+      ></html:textarea>
+    </vbox>
+
+    <vbox style="margin-top: 12px">
+      <checkbox
+        id="zotero-prefpane-__addonRef__-enable-richtext"
+        native="true"
+        preference="richTextTranslate"
+        data-l10n-id="pref-enable-richTextTranslate"
+      />
+    </vbox>
+
+    <vbox style="margin-top: 12px">
       <checkbox
         id="zotero-prefpane-__addonRef__-enable-compatibility"
         native="true"
         preference="enhanceCompatibility"
         data-l10n-id="pref-enable-compatibility"
       />
-    </vbox>
-    <vbox>
       <p data-l10n-id="pref-enable-compatibility-description" />
     </vbox>
-    <vbox>
-      <checkbox
-        id="zotero-prefpane-__addonRef__-enable-ocr-workaround"
-        native="true"
-        preference="ocrWorkaround"
-        data-l10n-id="pref-enable-ocr-workaround"
-      />
-    </vbox>
-    <vbox>
+
+    <vbox style="margin-top: 12px">
+      <hbox align="center">
+        <label data-l10n-id="pref-enable-ocr-workaround"></label>
+        <!-- Replace -->
+        <box id="__addonRef__-enable-ocr-workaround-placeholder"></box>
+      </hbox>
       <p data-l10n-id="pref-enable-ocr-workaround-description" />
     </vbox>
 
-    <vbox>
+    <hbox align="center" style="margin-top: 12px">
+      <label data-l10n-id="pref-font-family"></label>
+      <!-- Replace -->
+      <box id="__addonRef__-font-family-placeholder"></box>
+    </hbox>
+
+    <hbox align="center" style="margin-top: 12px">
+      <label data-l10n-id="pref-dual-mode"></label>
+      <!-- Replace -->
+      <box id="__addonRef__-dual-mode-placeholder"></box>
+    </hbox>
+
+    <vbox style="margin-top: 12px">
       <checkbox
         id="zotero-prefpane-__addonRef__-enable-autoTranslate"
         native="true"

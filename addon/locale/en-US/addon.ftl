@@ -20,6 +20,17 @@ translateModel-OpenAI = OpenAI
 translateModel-Gemini = Gemini
 translateModel-glm-4-flash = GLM-4-Flash
 
+auto = Auto
+ocr_workaround_enable = Enable
+ocr_workaround_disable = Disable
+
+font_family_serif = Serif
+font_family_sans-serif = Sans-serif
+font_family_script = Script
+
+dual_modl_lort = Side-by-side: Original | Translation
+dual_modl_ltro = Side-by-side: Translation | Original
+
 confirm-title = Translate Confirm
 confirm-options = Options
 confirm-enable-compatibility = Enable compatibility mode

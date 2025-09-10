@@ -58,8 +58,6 @@ export async function addTasksToQueue(ids?: number[]) {
   const translateMode = getPref("translateMode");
   const translateModel = getPref("translateModel");
   const targetLanguage = getPref("targetLanguage") as Language;
-  const enhanceCompatibility = getPref("enhanceCompatibility");
-  const ocrWorkaround = getPref("ocrWorkaround");
   const confirmResult = await showConfirmationDialog();
   if (confirmResult.action === "cancel") {
     return;
@@ -81,9 +79,6 @@ export async function addTasksToQueue(ids?: number[]) {
     task.translateMode = confirmResult.data?.translateMode || translateMode;
     task.translateModel = confirmResult.data?.translateModel || translateModel;
     task.targetLanguage = confirmResult.data?.targetLanguage || targetLanguage;
-    task.enhanceCompatibility =
-      confirmResult.data?.enhanceCompatibility || enhanceCompatibility;
-    task.ocrWorkaround = confirmResult.data?.ocrWorkaround || ocrWorkaround;
   });
   ztoolkit.log(`Adding ${tasksToQueue.length} translation tasks to the queue.`);
   addon.data.task.translationGlobalQueue.push(...tasksToQueue); // Add new tasks
@@ -273,8 +268,6 @@ async function createTranslationTask(
     targetLanguage: targetLanguage,
     translateModel: translateModel,
     translateMode: translateMode,
-    enhanceCompatibility: enhanceCompatibility,
-    ocrWorkaround: ocrWorkaround,
   };
 }
 

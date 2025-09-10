@@ -42,6 +42,51 @@ export const translateModels = [
   },
 ];
 
+export const ocrWorkaroundOptions = [
+  {
+    label: "auto",
+    value: "auto",
+  },
+  {
+    label: "ocr_workaround_enable",
+    value: "true",
+  },
+  {
+    label: "ocr_workaround_disable",
+    value: "false",
+  },
+];
+
+export const fontFamilyOptions = [
+  {
+    label: "auto",
+    value: "none",
+  },
+  {
+    label: "font_family_serif",
+    value: "serif",
+  },
+  {
+    label: "font_family_sans-serif",
+    value: "sans-serif",
+  },
+  {
+    label: "font_family_script",
+    value: "script",
+  },
+];
+
+export const dualModeOptions = [
+  {
+    label: "dual_modl_lort",
+    value: "lort",
+  },
+  {
+    label: "dual_modl_ltro",
+    value: "ltro",
+  },
+];
+
 export function getTranslateModelLabel(model: string) {
   const label = translateModels.find((m) => m.value === model)?.label;
   if (!label) {
@@ -52,6 +97,30 @@ export function getTranslateModelLabel(model: string) {
 
 export function getTranslateModeLabel(mode: string) {
   const label = translateModes.find((m) => m.value === mode)?.label;
+  if (!label) {
+    return "";
+  }
+  return getString(label);
+}
+
+export function getOcrWorkaroundLabel(val: string) {
+  const label = ocrWorkaroundOptions.find((v) => v.value === val)?.label;
+  if (!label) {
+    return "";
+  }
+  return getString(label);
+}
+
+export function getDuaModeLabel(val: string) {
+  const label = dualModeOptions.find((v) => v.value === val)?.label;
+  if (!label) {
+    return "";
+  }
+  return getString(label);
+}
+
+export function getFontFamilyLabel(val: string) {
+  const label = fontFamilyOptions.find((v) => v.value === val)?.label;
   if (!label) {
     return "";
   }

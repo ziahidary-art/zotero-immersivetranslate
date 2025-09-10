@@ -10,18 +10,13 @@ export async function showConfirmationDialog(): Promise<{
     targetLanguage: Language;
     translateMode: string;
     translateModel: string;
-    enhanceCompatibility: boolean;
-    ocrWorkaround: boolean;
   };
 }> {
   const dialogData: { [key: string | number]: any } = {
     targetLanguage: getPref("targetLanguage"),
     translateMode: getPref("translateMode"),
     translateModel: getPref("translateModel"),
-    enhanceCompatibility: getPref("enhanceCompatibility"),
-    ocrWorkaround: getPref("ocrWorkaround"),
   };
-  const currentTargetLang = getPref("targetLanguage") as Language;
   const dialogHelper = new ztoolkit.Dialog(11, 4)
     .addCell(0, 0, {
       tag: "h2",
@@ -143,80 +138,6 @@ export async function showConfirmationDialog(): Promise<{
       },
       false,
     )
-    .addCell(
-      7,
-      0,
-      {
-        tag: "input",
-        namespace: "html",
-        id: "enhanceCompatibility",
-        attributes: {
-          "data-bind": "enhanceCompatibility",
-          "data-prop": "checked",
-          type: "checkbox",
-        },
-        properties: { label: getString("confirm-enable-compatibility") },
-      },
-      false,
-    )
-    .addCell(7, 1, {
-      tag: "label",
-      namespace: "html",
-      attributes: {
-        for: "enhanceCompatibility",
-      },
-      properties: { innerHTML: getString("confirm-enable-compatibility") },
-      styles: {
-        width: "200px",
-      },
-    })
-    .addCell(8, 0, {
-      tag: "p",
-      namespace: "html",
-      properties: {
-        innerHTML: getString("confirm-enable-compatibility-description"),
-      },
-      styles: {
-        width: "400px",
-      },
-    })
-    .addCell(
-      9,
-      0,
-      {
-        tag: "input",
-        namespace: "html",
-        id: "ocrWorkaround",
-        attributes: {
-          "data-bind": "ocrWorkaround",
-          "data-prop": "checked",
-          type: "checkbox",
-        },
-        properties: { label: getString("confirm-enable-ocr-workaround") },
-      },
-      false,
-    )
-    .addCell(9, 1, {
-      tag: "label",
-      namespace: "html",
-      attributes: {
-        for: "ocrWorkaround",
-      },
-      properties: { innerHTML: getString("confirm-enable-ocr-workaround") },
-      styles: {
-        width: "200px",
-      },
-    })
-    .addCell(10, 0, {
-      tag: "p",
-      namespace: "html",
-      properties: {
-        innerHTML: getString("confirm-enable-ocr-workaround-description"),
-      },
-      styles: {
-        width: "400px",
-      },
-    })
     .addButton(getString("confirm-yes"), "confirm")
     .addButton(getString("confirm-cancel"), "cancel")
     .setDialogData(dialogData)
@@ -230,16 +151,12 @@ export async function showConfirmationDialog(): Promise<{
       setPref("targetLanguage", dialogData.targetLanguage);
       setPref("translateMode", dialogData.translateMode);
       setPref("translateModel", dialogData.translateModel);
-      setPref("enhanceCompatibility", dialogData.enhanceCompatibility);
-      setPref("ocrWorkaround", dialogData.ocrWorkaround);
       return {
         action: "confirm",
         data: dialogData as {
           targetLanguage: Language;
           translateMode: string;
           translateModel: string;
-          enhanceCompatibility: boolean;
-          ocrWorkaround: boolean;
         },
       };
     } else {

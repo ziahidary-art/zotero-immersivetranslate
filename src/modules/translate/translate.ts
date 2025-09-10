@@ -1,4 +1,5 @@
 import type { TranslationTaskData } from "../../types";
+import { getPref } from "../../utils/prefs";
 import { updateTaskInList } from "./task-manager";
 import { TranslationTaskMonitor } from "./task-monitor";
 
@@ -30,9 +31,14 @@ export async function translatePDF(
     fileName: taskData.attachmentFilename,
     targetLanguage: taskData.targetLanguage,
     requestModel: taskData.translateModel,
-    enhance_compatibility: taskData.enhanceCompatibility,
-    turnstileResponse: "",
-    OCRWorkaround: taskData.ocrWorkaround,
+    enhance_compatibility: getPref("enhanceCompatibility"),
+    OCRWorkaround: getPref("ocrWorkaround") === "true" ? true : false,
+    autoEnableOcrWorkAround: getPref("ocrWorkaround") === "auto",
+    autoExtractGlossary: getPref("autoExtractGlossary"),
+    disable_rich_text_translate: !getPref("richTextTranslate"),
+    primaryFontFamily: getPref("primaryFontFamily"),
+    dual_mode: getPref("dualMode"),
+    customSystemPrompt: getPref("customSystemPrompt") || null,
   });
 
   ztoolkit.log(

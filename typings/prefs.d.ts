@@ -14,7 +14,12 @@ declare namespace _ZoteroTypes {
       "enhanceCompatibility": boolean;
       "autoTranslate": boolean;
       "autoOpenPDF": boolean;
-      "ocrWorkaround": boolean;
+      "ocrWorkaround": string;
+      "autoExtractGlossary": boolean;
+      "richTextTranslate": boolean;
+      "primaryFontFamily": string;
+      "dualMode": string;
+      "customSystemPrompt": string;
       "fakeUserId": string;
       "enableShortcuts": boolean;
     };

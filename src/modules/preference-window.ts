@@ -3,7 +3,13 @@ import { getString } from "../utils/locale";
 import { getPref, setPref } from "../utils/prefs";
 import { showDialog } from "../utils/dialog";
 import { getLanguages, getLanguageName } from "./language";
-import { translateModes, translateModels } from "../config";
+import {
+  translateModes,
+  translateModels,
+  dualModeOptions,
+  fontFamilyOptions,
+  ocrWorkaroundOptions,
+} from "../config";
 import type { Language } from "./language/types";
 
 export function registerPrefs() {
@@ -147,6 +153,120 @@ function buildPrefsPane() {
       ],
     },
     doc.querySelector(`#${config.addonRef}-translate-model-placeholder`)!,
+  );
+
+  ztoolkit.UI.replaceElement(
+    {
+      tag: "menulist",
+      id: `${config.addonRef}-enable-ocr-workaround`,
+      attributes: {
+        value: getPref("ocrWorkaround") as string,
+        native: "true",
+      },
+      styles: {
+        maxWidth: "250px",
+      },
+      children: [
+        {
+          tag: "menupopup",
+          children: ocrWorkaroundOptions.map((item) => {
+            return {
+              tag: "menuitem",
+              attributes: {
+                label: getString(item.label),
+                value: item.value,
+              },
+            };
+          }),
+        },
+      ],
+      listeners: [
+        {
+          type: "command",
+          listener: (e: Event) => {
+            ztoolkit.log(e);
+            setPref("ocrWorkaround", (e.target as XUL.MenuList).value);
+          },
+        },
+      ],
+    },
+    doc.querySelector(`#${config.addonRef}-enable-ocr-workaround-placeholder`)!,
+  );
+
+  ztoolkit.UI.replaceElement(
+    {
+      tag: "menulist",
+      id: `${config.addonRef}-font-family`,
+      attributes: {
+        value: getPref("primaryFontFamily") as string,
+        native: "true",
+      },
+      styles: {
+        maxWidth: "250px",
+      },
+      children: [
+        {
+          tag: "menupopup",
+          children: fontFamilyOptions.map((item) => {
+            return {
+              tag: "menuitem",
+              attributes: {
+                label: getString(item.label),
+                value: item.value,
+              },
+            };
+          }),
+        },
+      ],
+      listeners: [
+        {
+          type: "command",
+          listener: (e: Event) => {
+            ztoolkit.log(e);
+            setPref("primaryFontFamily", (e.target as XUL.MenuList).value);
+          },
+        },
+      ],
+    },
+    doc.querySelector(`#${config.addonRef}-font-family-placeholder`)!,
+  );
+
+  ztoolkit.UI.replaceElement(
+    {
+      tag: "menulist",
+      id: `${config.addonRef}-dual-mode`,
+      attributes: {
+        value: getPref("dualMode") as string,
+        native: "true",
+      },
+      styles: {
+        maxWidth: "250px",
+      },
+      children: [
+        {
+          tag: "menupopup",
+          children: dualModeOptions.map((item) => {
+            return {
+              tag: "menuitem",
+              attributes: {
+                label: getString(item.label),
+                value: item.value,
+              },
+            };
+          }),
+        },
+      ],
+      listeners: [
+        {
+          type: "command",
+          listener: (e: Event) => {
+            ztoolkit.log(e);
+            setPref("dualMode", (e.target as XUL.MenuList).value);
+          },
+        },
+      ],
+    },
+    doc.querySelector(`#${config.addonRef}-dual-mode-placeholder`)!,
   );
 }
 
