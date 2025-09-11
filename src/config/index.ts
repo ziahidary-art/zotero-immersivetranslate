@@ -82,12 +82,20 @@ export const fontFamilyOptions = [
 
 export const dualModeOptions = [
   {
-    label: "dual_modl_lort",
+    label: "dual_mode_lort",
     value: "lort",
   },
   {
-    label: "dual_modl_ltro",
+    label: "dual_mode_ltro",
     value: "ltro",
+  },
+  {
+    label: "dual_mode_uodt",
+    value: "uodt",
+  },
+  {
+    label: "dual_mode_utdo",
+    value: "utdo",
   },
 ];
 

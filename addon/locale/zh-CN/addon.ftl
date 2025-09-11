@@ -13,6 +13,7 @@ translateMode-all = 双语模式 & 译文模式
 translateMode-dua = 双语模式
 translateMode-translation = 仅译文
 
+translateModel-qwen = Qwen
 translateModel-deepseek = DeepSeek
 translateModel-doubao = 豆包
 translateModel-glm-4-plus = 智谱 4 Plus
@@ -28,8 +29,10 @@ font_family_serif = 宋体
 font_family_sans-serif = 黑体
 font_family_script = 楷体
 
-dual_modl_lort = 左右对照：原文｜译文
-dual_modl_ltro = 左右对照：译文｜原文
+dual_mode_lort = 左右对照：原文｜译文
+dual_mode_ltro = 左右对照：译文｜原文
+dual_mode_uodt = 页面交替：原文在前
+dual_mode_utdo = 页面交替：译文在前
 
 confirm-title = 翻译确认
 confirm-options = 选项

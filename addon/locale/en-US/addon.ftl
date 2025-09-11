@@ -29,8 +29,10 @@ font_family_serif = Serif
 font_family_sans-serif = Sans-serif
 font_family_script = Script
 
-dual_modl_lort = Side-by-side: Original | Translation
-dual_modl_ltro = Side-by-side: Translation | Original
+dual_mode_lort = Side-by-side: Original | Translation
+dual_mode_ltro = Side-by-side: Translation | Original
+dual_mode_uodt = Page Alternation: Original Text First
+dual_mode_utdo = Page Alternation: Translation First
 
 confirm-title = Translate Confirm
 confirm-options = Options
