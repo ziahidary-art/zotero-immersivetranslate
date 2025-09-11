@@ -17,6 +17,10 @@ export const translateModes = [
 
 export const translateModels = [
   {
+    label: "translateModel-qwen",
+    value: "qwen-1",
+  },
+  {
     label: "translateModel-deepseek",
     value: "deepseek",
   },

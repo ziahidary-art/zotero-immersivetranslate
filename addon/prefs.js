@@ -2,7 +2,7 @@
 pref("authkey", "");
 pref("targetLanguage", "zh-CN");
 pref("translateMode", "dual");
-pref("translateModel", "deepseek");
+pref("translateModel", "qwen-1");
 pref("enhanceCompatibility", false);
 pref("autoTranslate", false);
 pref("autoOpenPDF", true);

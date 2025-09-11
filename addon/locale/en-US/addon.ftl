@@ -13,6 +13,7 @@ translateMode-all = Bilingual mode & Translation only
 translateMode-dua = Bilingual mode
 translateMode-translation = Translation only
 
+translateModel-qwen = Qwen
 translateModel-deepseek = DeepSeek
 translateModel-doubao = Doubao
 translateModel-glm-4-plus = GLM-4-Plus
